@@ -17,14 +17,29 @@ jobs:
           GITHUB_TOKEN: ${{secrets.REPO_ACCESS_TOKEN}}
         env:
           SYNCED_GAME_STABLE_VERSION: e1.5.0
-          SYNCED_GAME_BETA_VERSION: e1.5.0
+          SYNCED_GAME_BETA_VERSION: e1.5.1
 
+      # Trigger Bannerlord.ReferenceAssemblies first so the NuGet packages are built
       - name: Dispatch
         uses: guilouro/multiple-repositories-dispatch@master
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
           repositories: |
             BUTR/Bannerlord.ReferenceAssemblies
+          event_type: game_version_update
+          client_payload: '{"github": ${{ toJson(github) }}}'
+          
+      - name: Sleep for 30 seconds
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '15m'
+
+      # Trigger projects that depend on the NuGet packages first
+      - name: Dispatch
+        uses: guilouro/multiple-repositories-dispatch@master
+        with:
+          repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
+          repositories: |
             BUTR/Bannerlord.ReferenceAssemblies.Documentation
             BUTR/Bannerlord.UIExtenderEx
             BUTR/Bannerlord.ButterLib
