@@ -20,7 +20,7 @@ jobs:
           SYNCED_GAME_BETA_VERSION: e1.5.0
 
       - name: Dispatch
-        uses: guilouro/multiple-repositories-dispatch@v1
+        uses: guilouro/multiple-repositories-dispatch@master
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
           repositories: |
