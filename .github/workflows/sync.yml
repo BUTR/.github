@@ -14,7 +14,7 @@ jobs:
             ^SYNCED_
           REPOSITORIES: |
             ^BUTR
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN_REPO}}
+          GITHUB_TOKEN: ${{secrets.REPO_ACCESS_TOKEN}}
         env:
           SYNCED_GAME_STABLE_VERSION: e1.5.0
           SYNCED_GAME_BETA_VERSION: e1.5.0
