@@ -14,6 +14,7 @@ jobs:
             ^SYNCED_
           REPOSITORIES: |
             ^BUTR
+            ^Aragas/Bannerlord.MBOptionScreen
           GITHUB_TOKEN: ${{secrets.REPO_ACCESS_TOKEN}}
         env:
           SYNCED_GAME_STABLE_VERSION: e1.5.0
@@ -29,7 +30,7 @@ jobs:
           event_type: game_version_update
           client_payload: '{"github": ${{ toJson(github) }}}'
           
-      - name: Sleep for 30 seconds
+      - name: Sleep for 15 minutes
         uses: jakejarvis/wait-action@master
         with:
           time: '15m'
