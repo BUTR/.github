@@ -1,12 +1,12 @@
 name: Sync
 
-on:
-  push:
-    branches:
-      - master
 #on:
-#  schedule:
-#    - cron: "0 */3 * * *"
+#  push:
+#    branches:
+#      - master
+on:
+  schedule:
+    - cron: "0 */3 * * *"
 
 env:
   # Disable the .NET logo in the console output.
