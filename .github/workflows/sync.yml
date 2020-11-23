@@ -36,7 +36,6 @@ jobs:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Run SteamNewsChecker check-news
-        id: date_checker
         run: dotnet build src/DotNetTools/DotNetTools.csproj
 
       - name: Run SteamNewsChecker check-news
