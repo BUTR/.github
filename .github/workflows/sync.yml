@@ -67,16 +67,18 @@ jobs:
 
       - name: Run DotNetTools get-branches
         id: branches
-        if: ${{steps.date_checker.outputs.date != 0}}
         run: >-
-           $json = dotnet run -p src/DotNetTools/DotNetTools.csproj --no-build -- get-branches --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551;
-           echo "::set-output name=json::$json";
-        continue-on-error: true
+           if ($${{steps.date_checker.outputs.date != 0}}) {
+             echo "::set-output name=json::$(dotnet run -p src/DotNetTools/DotNetTools.csproj --no-build -- get-branches --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551)"
+           }
+           if (!$${{steps.date_checker.outputs.date != 0}}) {
+             echo "::set-output name=json::{}"
+           }
         shell: pwsh
 
       - name: Sync STABLE/BETA
         uses: google/secrets-sync-action@v1.4.0
-        if: ${{steps.date_checker.outputs.date != 0 && startsWith(steps.branches.outputs.json, '{')}}
+        if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != '{}'}}
         with:
           SECRETS: |
             ^SYNCED_
@@ -91,7 +93,7 @@ jobs:
       # Trigger Bannerlord.ReferenceAssemblies first so the NuGet packages are built
       - name: Dispatch
         uses: guilouro/multiple-repositories-dispatch@master
-        if: ${{steps.date_checker.outputs.date != 0 && startsWith(steps.branches.outputs.json, '{')}}
+        if: ${{steps.date_checker.outputs.date != 0 && && steps.branches.outputs.json != '{}'}}
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
           repositories: |
@@ -108,7 +110,7 @@ jobs:
       # Trigger projects that depend on the NuGet packages first
       - name: Dispatch
         uses: guilouro/multiple-repositories-dispatch@master
-        if: ${{steps.date_checker.outputs.date != 0 && startsWith(steps.branches.outputs.json, '{')}}
+        if: ${{steps.date_checker.outputs.date != 0 && && steps.branches.outputs.json != '{}'}}
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
           repositories: |
