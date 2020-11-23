@@ -1,14 +1,74 @@
 name: Sync
+
 on:
   push:
     branches:
       - master
+#on:
+#  schedule:
+#    - cron: "0 */6 * * *"
+
+env:
+  # Disable the .NET logo in the console output.
+  DOTNET_NOLOGO: true
+  # Disable the .NET first time experience to skip caching NuGet packages and speed up the build.
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  # Disable sending .NET CLI telemetry to Microsoft.
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
-  build:
+  sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: google/secrets-sync-action@v1.4.0
-        name: Sync Secrets
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@master
+        with:
+          dotnet-version: 5.0.x
+
+      - name: Setup BUTR GPR
+        uses: actions/setup-dotnet@master
+        with:
+          source-url: https://nuget.pkg.github.com/BUTR/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Run SteamNewsChecker check-news
+        id: date_checker
+        run: dotnet build src/DotNetTools/DotNetTools.csproj
+
+      - name: Run SteamNewsChecker check-news
+        id: date_checker
+        run: >-
+           $date = dotnet run -p src/DotNetTools/DotNetTools.csproj --no-build -- check-news --appId 261550 --count 10;
+           echo "::set-output name=date::$date";
+        env:
+          DATEOFLASTPOST: ${{secrets.SC_DATE_OF_LAST_POST}}
+
+      - name: Sync Secrets
+        uses: google/secrets-sync-action@v1.4.0
+        with:
+          SECRETS: |
+            ^SC_
+          REPOSITORIES: |
+            ^BUTR/.github
+          GITHUB_TOKEN: ${{secrets.REPO_ACCESS_TOKEN}}
+        env:
+          SC_DATE_OF_LAST_POST: ${{steps.date_checker.outputs.date}}
+
+
+      - name: Run SteamNewsChecker check-news
+        id: branches
+        if: ${{steps.date_checker.outputs.date != 0}}
+        run: >-
+           $json = dotnet run -p src/DotNetTools/DotNetTools.csproj --no-build -- get-branches --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551;
+           echo "::set-output name=json::$json";
+
+      - name: Sync Secrets
+        uses: google/secrets-sync-action@v1.4.0
+        if: ${{steps.date_checker.outputs.date != 0}}
         with:
           SECRETS: |
             ^SYNCED_
@@ -17,27 +77,30 @@ jobs:
             ^Aragas/Bannerlord.MBOptionScreen
           GITHUB_TOKEN: ${{secrets.REPO_ACCESS_TOKEN}}
         env:
-          SYNCED_GAME_STABLE_VERSION: e1.5.4
-          SYNCED_GAME_BETA_VERSION: e1.5.5
+          SYNCED_GAME_STABLE_VERSION: ${{fromJson(steps.branches.outputs.json).stable}}
+          SYNCED_GAME_BETA_VERSION: ${{fromJson(steps.branches.outputs.json).beta}}
 
       # Trigger Bannerlord.ReferenceAssemblies first so the NuGet packages are built
       - name: Dispatch
         uses: guilouro/multiple-repositories-dispatch@master
+        if: ${{steps.date_checker.outputs.date != 0}}
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
           repositories: |
             BUTR/Bannerlord.ReferenceAssemblies
           event_type: game_version_update
           client_payload: '{"github": ${{ toJson(github) }}}'
-          
+
       - name: Sleep for 15 minutes
         uses: jakejarvis/wait-action@master
+        if: ${{steps.date_checker.outputs.date != 0}}
         with:
           time: '15m'
 
       # Trigger projects that depend on the NuGet packages first
       - name: Dispatch
         uses: guilouro/multiple-repositories-dispatch@master
+        if: ${{steps.date_checker.outputs.date != 0}}
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
           repositories: |
