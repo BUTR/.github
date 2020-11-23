@@ -6,7 +6,7 @@ on:
       - master
 #on:
 #  schedule:
-#    - cron: "0 */2 * * *"
+#    - cron: "0 */3 * * *"
 
 env:
   # Disable the .NET logo in the console output.
