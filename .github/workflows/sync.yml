@@ -52,7 +52,7 @@ jobs:
         continue-on-error: true
         shell: pwsh
 
-      - name: Sync Secrets
+      - name: Sync SC_DATE_OF_LAST_POST
         uses: google/secrets-sync-action@v1.4.0
         with:
           SECRETS: |
@@ -64,7 +64,7 @@ jobs:
           SC_DATE_OF_LAST_POST: ${{steps.date_checker.outputs.date}}
 
 
-      - name: Run SteamNewsChecker check-news
+      - name: Run SteamNewsChecker get-branches
         id: branches
         if: ${{steps.date_checker.outputs.date != 0}}
         run: >-
@@ -73,7 +73,7 @@ jobs:
         continue-on-error: true
         shell: pwsh
 
-      - name: Sync Secrets
+      - name: Sync STABLE/BETA
         uses: google/secrets-sync-action@v1.4.0
         if: ${{steps.date_checker.outputs.date != 0}}
         with:
