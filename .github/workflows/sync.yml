@@ -38,11 +38,11 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Build SteamNewsChecker
+      - name: Build DotNetTools
         run: dotnet build src/DotNetTools/DotNetTools.csproj
         shell: pwsh
 
-      - name: Run SteamNewsChecker check-news
+      - name: Run DotNetTools check-news
         id: date_checker
         run: >-
            $date = dotnet run -p src/DotNetTools/DotNetTools.csproj --no-build -- check-news --appId 261550 --count 10;
@@ -64,7 +64,7 @@ jobs:
           SC_DATE_OF_LAST_POST: ${{steps.date_checker.outputs.date}}
 
 
-      - name: Run SteamNewsChecker get-branches
+      - name: Run DotNetTools get-branches
         id: branches
         if: ${{steps.date_checker.outputs.date != 0}}
         run: >-
@@ -75,7 +75,7 @@ jobs:
 
       - name: Sync STABLE/BETA
         uses: google/secrets-sync-action@v1.4.0
-        if: ${{steps.date_checker.outputs.date != 0}}
+        if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != ''}}
         with:
           SECRETS: |
             ^SYNCED_
@@ -90,7 +90,7 @@ jobs:
       # Trigger Bannerlord.ReferenceAssemblies first so the NuGet packages are built
       - name: Dispatch
         uses: guilouro/multiple-repositories-dispatch@master
-        if: ${{steps.date_checker.outputs.date != 0}}
+        if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != ''}}
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
           repositories: |
@@ -107,7 +107,7 @@ jobs:
       # Trigger projects that depend on the NuGet packages first
       - name: Dispatch
         uses: guilouro/multiple-repositories-dispatch@master
-        if: ${{steps.date_checker.outputs.date != 0}}
+        if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != ''}}
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
           repositories: |
