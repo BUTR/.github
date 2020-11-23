@@ -183,8 +183,6 @@ namespace DotNetTools
                     Console.WriteLine(0);
                 else
                     Console.WriteLine(lastPatchNotes.Date);
-
-                System.Diagnostics.Process.GetCurrentProcess().Kill();
             });
 
             var getBranches = new Command("get-branches")
