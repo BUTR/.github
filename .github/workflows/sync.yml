@@ -93,7 +93,7 @@ jobs:
       # Trigger Bannerlord.ReferenceAssemblies first so the NuGet packages are built
       - name: Dispatch
         uses: guilouro/multiple-repositories-dispatch@master
-        if: ${{steps.date_checker.outputs.date != 0 && && steps.branches.outputs.json != '{}'}}
+        if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != '{}'}}
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
           repositories: |
@@ -110,7 +110,7 @@ jobs:
       # Trigger projects that depend on the NuGet packages first
       - name: Dispatch
         uses: guilouro/multiple-repositories-dispatch@master
-        if: ${{steps.date_checker.outputs.date != 0 && && steps.branches.outputs.json != '{}'}}
+        if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != '{}'}}
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
           repositories: |
