@@ -238,7 +238,7 @@ namespace DotNetTools
                 var betaBranchVersion = otherBranches.Last();
 
                 Console.SetOut(@out);
-                Console.WriteLine($"{{ stable: {stableBranchVersion.Name}, beta: {betaBranchVersion.Name} }}");
+                Console.WriteLine($"{{ stable: \"{stableBranchVersion.Name}\", beta: \"{betaBranchVersion.Name}\" }}");
 
                 System.Diagnostics.Process.GetCurrentProcess().Kill();
             });
