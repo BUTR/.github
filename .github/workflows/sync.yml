@@ -70,7 +70,7 @@ jobs:
         run: >-
            $json = dotnet run -p src/DotNetTools/DotNetTools.csproj --no-build -- get-branches --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551;
            echo "::set-output name=json::$json";
-       continue-on-error: true
+        continue-on-error: true
         shell: pwsh
 
       - name: Sync Secrets
