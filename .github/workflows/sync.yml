@@ -17,8 +17,8 @@ jobs:
             ^Aragas/Bannerlord.MBOptionScreen
           GITHUB_TOKEN: ${{secrets.REPO_ACCESS_TOKEN}}
         env:
-          SYNCED_GAME_STABLE_VERSION: e1.5.0
-          SYNCED_GAME_BETA_VERSION: e1.5.1
+          SYNCED_GAME_STABLE_VERSION: e1.5.4
+          SYNCED_GAME_BETA_VERSION: e1.5.5
 
       # Trigger Bannerlord.ReferenceAssemblies first so the NuGet packages are built
       - name: Dispatch
