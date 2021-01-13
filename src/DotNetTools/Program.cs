@@ -177,7 +177,7 @@ namespace DotNetTools
                 var secrets = host.Services.GetRequiredService<IOptions<SecretsOptions>>().Value;
                 var dateOfLastPost = secrets.DateOfLastPost;
 
-                var lastPatchNotes = response?.AppNews.NewsItems.FirstOrDefault(n => n.Tags.Any(t => t == "patchnotes" || t == "mod_reviewed" || t == "mod_require_rereview"));
+                var lastPatchNotes = response?.AppNews.NewsItems.FirstOrDefault(n => n.Tags?.Any(t => t == "patchnotes" || t == "mod_reviewed" || t == "mod_require_rereview") == true);
                 Console.SetOut(@out);
                 if (lastPatchNotes is null || lastPatchNotes.Date == dateOfLastPost)
                     Console.WriteLine(0);
