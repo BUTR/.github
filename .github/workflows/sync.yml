@@ -1,9 +1,9 @@
 name: Sync
 
-#on:
-#  push:
-#    branches:
-#      - master
+on:
+  push:
+    branches:
+      - master
 on:
   schedule:
     - cron: "0 */3 * * *"
