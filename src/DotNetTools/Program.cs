@@ -248,8 +248,6 @@ namespace DotNetTools
 
                     Console.SetOut(@out);
                     Console.WriteLine($"{{ stable: \"{stableBranchVersion.Name}\", beta: \"{betaBranchVersion.Name}\" }}");
-
-                    System.Diagnostics.Process.GetCurrentProcess().Kill();
                 }
                 catch (Exception e)
                 {
