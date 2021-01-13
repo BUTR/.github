@@ -76,7 +76,7 @@ namespace DotNetTools
         public long Appid { get; set; }
 
         [JsonPropertyName("tags")]
-        public string[] Tags { get; set; }
+        public string[]? Tags { get; set; }
     }
 
     public class CheckNewsOptions
@@ -127,10 +127,10 @@ namespace DotNetTools
             }
         }
 
-        public string Name { get; set; }
-        public uint AppId { get; set; }
-        public uint DepotId { get; set; }
-        public uint BuildId { get; set; }
+        public string Name { get; init; }
+        public uint AppId { get; init; }
+        public uint DepotId { get; init; }
+        public uint BuildId { get; init; }
 
         public string GetVersion(string appVersion) =>
             //char.IsDigit(Name[1]) ? $"{Name[1..]}.{appVersion}-{Name[0]}" : "";
@@ -192,7 +192,7 @@ namespace DotNetTools
                 new Option<string>("--steamAppId"),
                 new Option<string>("--steamDepotId")
             };
-            getBranches.Handler = CommandHandler.Create(async (IHost host) =>
+            getBranches.Handler = CommandHandler.Create((IHost host) =>
             {
                 var @out = Console.Out;
                 Console.SetOut(TextWriter.Null);
@@ -219,20 +219,20 @@ namespace DotNetTools
                 var depots = getSteam3AppSectionMethod.Invoke(null, new object?[] { steamOptions.SteamAppId, EAppInfoSection.Depots }) as KeyValue;
                 shutdownSteam3Method.Invoke(null, Array.Empty<object>());
 
-                var branches = depots["branches"].Children.Select(c => new SteamAppBranch
+                var branches = depots["branches"].Children.ConvertAll(c => new SteamAppBranch
                 {
                     Name = c.Name!,
                     AppId = steamOptions.SteamAppId,
                     DepotId = steamOptions.SteamDepotId,
                     BuildId = uint.TryParse(c["buildid"].Value!, out var r) ? r : 0
-                }).ToList();
+                });
 
-                var prefixes = new HashSet<BranchType>(branches.Select(branch => branch.Prefix).Where(b => b != BranchType.Unknown));
+                //var prefixes = new HashSet<BranchType>(branches.Select(branch => branch.Prefix).Where(b => b != BranchType.Unknown));
 
                 var publicBranch = branches.First(branch => branch.Name == "public");
                 var otherBranches = branches.Where(branch => branch.Prefix != BranchType.Unknown).ToList();
 
-                var stableBranchVersion = otherBranches.FirstOrDefault(branch => branch.BuildId == publicBranch.BuildId);
+                var stableBranchVersion = otherBranches.Find(branch => branch.BuildId == publicBranch.BuildId);
                 var betaBranchVersion = otherBranches.Last();
 
                 Console.SetOut(@out);
