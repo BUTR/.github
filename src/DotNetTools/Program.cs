@@ -166,23 +166,31 @@ namespace DotNetTools
                 var @out = Console.Out;
                 Console.SetOut(TextWriter.Null);
 
-                var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
-                var client = httpClientFactory.CreateClient();
+                try
+                {
+                    var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
+                    var client = httpClientFactory.CreateClient();
 
-                var options = host.Services.GetRequiredService<IOptions<CheckNewsOptions>>().Value;
+                    var options = host.Services.GetRequiredService<IOptions<CheckNewsOptions>>().Value;
 
-                var url = $"http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid={options.AppId}&count={options.Count}&maxlength=1&format=json";
-                var response =  await client.GetFromJsonAsync<NewsForApp>(url);
+                    var url = $"http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid={options.AppId}&count={options.Count}&maxlength=1&format=json";
+                    var response =  await client.GetFromJsonAsync<NewsForApp>(url);
 
-                var secrets = host.Services.GetRequiredService<IOptions<SecretsOptions>>().Value;
-                var dateOfLastPost = secrets.DateOfLastPost;
+                    var secrets = host.Services.GetRequiredService<IOptions<SecretsOptions>>().Value;
+                    var dateOfLastPost = secrets.DateOfLastPost;
 
-                var lastPatchNotes = response?.AppNews.NewsItems.FirstOrDefault(n => n.Tags?.Any(t => t == "patchnotes" || t == "mod_reviewed" || t == "mod_require_rereview") == true);
-                Console.SetOut(@out);
-                if (lastPatchNotes is null || lastPatchNotes.Date == dateOfLastPost)
-                    Console.WriteLine(0);
-                else
-                    Console.WriteLine(lastPatchNotes.Date);
+                    var lastPatchNotes = response?.AppNews.NewsItems.FirstOrDefault(n => n.Tags?.Any(t => t == "patchnotes" || t == "mod_reviewed" || t == "mod_require_rereview") == true);
+                    Console.SetOut(@out);
+                    if (lastPatchNotes is null || lastPatchNotes.Date == dateOfLastPost)
+                        Console.WriteLine(0);
+                    else
+                        Console.WriteLine(lastPatchNotes.Date);
+                }
+                catch (Exception)
+                {
+                    Console.SetOut(@out);
+                    throw;
+                }
             });
 
             var getBranches = new Command("get-branches")
@@ -197,48 +205,56 @@ namespace DotNetTools
                 var @out = Console.Out;
                 Console.SetOut(TextWriter.Null);
 
-                var steamOptions = host.Services.GetRequiredService<IOptions<SteamOptions>>().Value;
-
-                var programType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.Program");
-                var accountSettingsStoreType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.AccountSettingsStore");
-                var contentDownloaderType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.ContentDownloader");
-                var steam3SessionType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.Steam3Session");
-
-                var loadFromFileMethod = AccessTools.Method(accountSettingsStoreType, "LoadFromFile");
-                var initializeSteamMethod = AccessTools.Method(programType, "InitializeSteam");
-                var requestAppInfoMethod = AccessTools.Method(steam3SessionType, "RequestAppInfo");
-                var getSteam3AppSectionMethod = AccessTools.Method(contentDownloaderType, "GetSteam3AppSection");
-                var shutdownSteam3Method = AccessTools.Method(contentDownloaderType, "ShutdownSteam3");
-
-                var steam3Field = AccessTools.Field(contentDownloaderType, "steam3");
-
-                loadFromFileMethod.Invoke(null, new object?[] { "account.config" });
-                initializeSteamMethod.Invoke(null, new object?[] { steamOptions.SteamLogin, steamOptions.SteamPassword });
-                var steam3 = steam3Field.GetValue(null);
-                requestAppInfoMethod.Invoke(steam3, new object?[] { steamOptions.SteamAppId, false });
-                var depots = getSteam3AppSectionMethod.Invoke(null, new object?[] { steamOptions.SteamAppId, EAppInfoSection.Depots }) as KeyValue;
-                shutdownSteam3Method.Invoke(null, Array.Empty<object>());
-
-                var branches = depots["branches"].Children.ConvertAll(c => new SteamAppBranch
+                try
                 {
-                    Name = c.Name!,
-                    AppId = steamOptions.SteamAppId,
-                    DepotId = steamOptions.SteamDepotId,
-                    BuildId = uint.TryParse(c["buildid"].Value!, out var r) ? r : 0
-                });
+                    var steamOptions = host.Services.GetRequiredService<IOptions<SteamOptions>>().Value;
 
-                //var prefixes = new HashSet<BranchType>(branches.Select(branch => branch.Prefix).Where(b => b != BranchType.Unknown));
+                    var programType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.Program");
+                    var accountSettingsStoreType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.AccountSettingsStore");
+                    var contentDownloaderType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.ContentDownloader");
+                    var steam3SessionType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.Steam3Session");
 
-                var publicBranch = branches.First(branch => branch.Name == "public");
-                var otherBranches = branches.Where(branch => branch.Prefix != BranchType.Unknown).ToList();
+                    var loadFromFileMethod = AccessTools.Method(accountSettingsStoreType, "LoadFromFile");
+                    var initializeSteamMethod = AccessTools.Method(programType, "InitializeSteam");
+                    var requestAppInfoMethod = AccessTools.Method(steam3SessionType, "RequestAppInfo");
+                    var getSteam3AppSectionMethod = AccessTools.Method(contentDownloaderType, "GetSteam3AppSection");
+                    var shutdownSteam3Method = AccessTools.Method(contentDownloaderType, "ShutdownSteam3");
 
-                var stableBranchVersion = otherBranches.Find(branch => branch.BuildId == publicBranch.BuildId);
-                var betaBranchVersion = otherBranches.Last();
+                    var steam3Field = AccessTools.Field(contentDownloaderType, "steam3");
 
-                Console.SetOut(@out);
-                Console.WriteLine($"{{ stable: \"{stableBranchVersion.Name}\", beta: \"{betaBranchVersion.Name}\" }}");
+                    loadFromFileMethod.Invoke(null, new object?[] { "account.config" });
+                    initializeSteamMethod.Invoke(null, new object?[] { steamOptions.SteamLogin, steamOptions.SteamPassword });
+                    var steam3 = steam3Field.GetValue(null);
+                    requestAppInfoMethod.Invoke(steam3, new object?[] { steamOptions.SteamAppId, false });
+                    var depots = getSteam3AppSectionMethod.Invoke(null, new object?[] { steamOptions.SteamAppId, EAppInfoSection.Depots }) as KeyValue;
+                    shutdownSteam3Method.Invoke(null, Array.Empty<object>());
 
-                System.Diagnostics.Process.GetCurrentProcess().Kill();
+                    var branches = depots["branches"].Children.ConvertAll(c => new SteamAppBranch
+                    {
+                        Name = c.Name!,
+                        AppId = steamOptions.SteamAppId,
+                        DepotId = steamOptions.SteamDepotId,
+                        BuildId = uint.TryParse(c["buildid"].Value!, out var r) ? r : 0
+                    });
+
+                    //var prefixes = new HashSet<BranchType>(branches.Select(branch => branch.Prefix).Where(b => b != BranchType.Unknown));
+
+                    var publicBranch = branches.First(branch => branch.Name == "public");
+                    var otherBranches = branches.Where(branch => branch.Prefix != BranchType.Unknown).ToList();
+
+                    var stableBranchVersion = otherBranches.Find(branch => branch.BuildId == publicBranch.BuildId);
+                    var betaBranchVersion = otherBranches.Last();
+
+                    Console.SetOut(@out);
+                    Console.WriteLine($"{{ stable: \"{stableBranchVersion.Name}\", beta: \"{betaBranchVersion.Name}\" }}");
+
+                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                }
+                catch
+                {
+                    Console.SetOut(@out);
+                    throw;
+                }
             });
 
             var root = new RootCommand { checkNews, getBranches };
