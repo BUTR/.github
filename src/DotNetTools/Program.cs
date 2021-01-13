@@ -186,9 +186,10 @@ namespace DotNetTools
                     else
                         Console.WriteLine(lastPatchNotes.Date);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     Console.SetOut(@out);
+                    Console.WriteLine(e);
                     throw;
                 }
             });
@@ -250,9 +251,10 @@ namespace DotNetTools
 
                     System.Diagnostics.Process.GetCurrentProcess().Kill();
                 }
-                catch
+                catch (Exception e)
                 {
                     Console.SetOut(@out);
+                    Console.WriteLine(e);
                     throw;
                 }
             });
