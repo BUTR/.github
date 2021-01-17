@@ -107,7 +107,7 @@ jobs:
         with:
           time: '15m'
 
-      # Trigger projects that depend on the NuGet packages first
+      # Trigger projects that depend on the NuGet packages
       - name: Dispatch
         uses: guilouro/multiple-repositories-dispatch@master
         if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != '{}'}}
@@ -118,5 +118,8 @@ jobs:
             BUTR/Bannerlord.UIExtenderEx
             BUTR/Bannerlord.ButterLib
             Aragas/Bannerlord.MBOptionScreen
+            BUTR/AssemblyDiffer
+            BUTR/Bannerlord.BUTRLoader
+            BUTR/Bannerlord.BUTR.Shared
           event_type: game_version_update
           client_payload: '{"github": ${{ toJson(github) }}}'
