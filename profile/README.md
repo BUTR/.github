@@ -31,11 +31,11 @@
 <details>
   <summary>Tools:</summary>
     <ul>
-      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.BuildResources">Bannerlord.BuildResources</a></li>
-      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ReferenceAssemblies">Bannerlord.ReferenceAssemblies</a></li>
       <li>🧰 <a href="https://github.com/BUTR/FetchBannerlordVersion">FetchBannerlordVersion</a></li>
-      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.LocalizationParser">Bannerlord.LocalizationParser</a></li>
+      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.BuildResources">Bannerlord.BuildResources</a></li>
       <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ChangelogParser">Bannerlord.ChangelogParser</a></li>
+      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.LocalizationParser">Bannerlord.LocalizationParser</a></li>
+      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ReferenceAssemblies">Bannerlord.ReferenceAssemblies</a></li>
     </ul>
 </details>
   
