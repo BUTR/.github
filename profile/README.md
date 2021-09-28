@@ -1,7 +1,3 @@
-<p align="center">
-  <a>BUTR is a small team dedicated to improving the game itself and the ecosystem around it.<a/>
-</p>
-
 <details open>
   <summary>Module Template:</summary>
   <ul>
