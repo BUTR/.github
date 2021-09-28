@@ -36,7 +36,6 @@
       <li>🧰 <a href="https://github.com/BUTR/FetchBannerlordVersion">FetchBannerlordVersion</a></li>
       <li>🧰 <a href="https://github.com/BUTR/Bannerlord.LocalizationParser">Bannerlord.LocalizationParser</a></li>
       <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ChangelogParser">Bannerlord.ChangelogParser</a></li>
-      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ChangelogParser">ChangelogParser</a></li>
     </ul>
 </details>
   
@@ -46,7 +45,7 @@
       <li>:octocat: <a href="https://github.com/BUTR/actions-common-setup">actions-common-setup</a></li>
       <li>:octocat: <a href="https://github.com/BUTR/actions-tests-setup">actions-tests-setup</a></li>
       <li>:octocat: <a href="https://github.com/BUTR/actions-docfx-setup">actions-docfx-setup</a></li>
-      <li>:octocat: <a href="actions-code-format-setup">actions-code-format-setup</a></li>
+      <li>:octocat: <a href="https://github.com/BUTR/actions-code-format-setup">actions-code-format-setup</a></li>
     </ul>
 </details>
 
