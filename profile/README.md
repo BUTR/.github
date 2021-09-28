@@ -11,6 +11,7 @@
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.Harmony">Harmony</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.UIExtenderEx">UIExtenderEx</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.ButterLib">ButterLib</a></li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.MBOptionScreen">Mod Configuration Menu</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.BUTRLoader">BUTRLoader</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.Lua">Bannerlord.Lua</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.Python">Bannerlord.Python</a></li>
@@ -46,6 +47,13 @@
       <li>:octocat: <a href="https://github.com/BUTR/actions-tests-setup">actions-tests-setup</a></li>
       <li>:octocat: <a href="https://github.com/BUTR/actions-docfx-setup">actions-docfx-setup</a></li>
       <li>:octocat: <a href="actions-code-format-setup">actions-code-format-setup</a></li>
+    </ul>
+</details>
+
+<details>
+  <summary>Services:</summary>
+    <ul>
+      <li>🌎 <a href="https://github.com/Aragas/NexusMods.Monitor">NexusMods.Monitor</a></li>
     </ul>
 </details>
 
