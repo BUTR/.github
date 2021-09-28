@@ -19,7 +19,7 @@
   </ul>
 </details>
  
-<details>
+<details open>
   <summary>Libraries:</summary>
     <ul>
       <li>📂 <a href="https://github.com/BUTR/Harmony.Extensions">Harmony.Extensions</a> - extends <a href="https://github.com/pardeike/Harmony">Harmony</a>.</li>
