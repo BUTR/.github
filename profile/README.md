@@ -11,7 +11,7 @@
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.Harmony">Harmony</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.UIExtenderEx">UIExtenderEx</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.ButterLib">ButterLib</a></li>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.MBOptionScreen">Mod Configuration Menu</a></li>
+    <li>📁 <a href="https://github.com/Aragas/Bannerlord.MBOptionScreen">Mod Configuration Menu</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.BUTRLoader">BUTRLoader</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.Lua">Bannerlord.Lua</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.Python">Bannerlord.Python</a></li>
