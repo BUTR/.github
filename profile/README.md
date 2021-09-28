@@ -1,1 +1,1 @@
-[Workflow Status](/workflow-status.md)
+[Workflow Status](/profile/workflow-status.md)
