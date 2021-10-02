@@ -13,9 +13,6 @@
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.ButterLib">ButterLib</a></li>
     <li>📁 <a href="https://github.com/Aragas/Bannerlord.MBOptionScreen">Mod Configuration Menu</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.BUTRLoader">BUTRLoader</a></li>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.Lua">Bannerlord.Lua</a></li>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.Python">Bannerlord.Python</a></li>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.PHP">Bannerlord.PHP</a></li>
   </ul>
 </details>
  
@@ -62,6 +59,15 @@
       <li>🌐 <a href="https://github.com/BUTR/BUTR.CrashReportViewer">BUTR.CrashReportViewer</a></li>
       <li>🌐 <a href="https://github.com/BUTR/NexusMods.ArticleViewer">NexusMods.ArticleViewer</a></li>
     </ul>
+</details>
+
+<details>
+  <summary>Modding with other languages, proof of concept:</summary>
+  <ul>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.Lua">Bannerlord.Lua</a></li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.Python">Bannerlord.Python</a></li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.PHP">Bannerlord.PHP</a></li>
+  </ul>
 </details>
 
 <details open>
