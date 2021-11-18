@@ -116,9 +116,9 @@ jobs:
             BUTR/Bannerlord.UIExtenderEx
             BUTR/Bannerlord.ButterLib
             Aragas/Bannerlord.MBOptionScreen
-            BUTR/AssemblyDiffer
             BUTR/Bannerlord.BUTRLoader
             BUTR/Bannerlord.BUTR.Shared
             BUTR/Bannerlord.ReferenceAssemblies.Diff
+            BUTR/AssemblyDiffer
           event_type: game_version_update
           client_payload: '{"github": ${{ toJson(github) }}}'
