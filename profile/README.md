@@ -70,6 +70,16 @@
   </ul>
 </details>
 
+<details>
+  <summary>Sponsoring:</summary>
+  <ul>
+    <li>💰 <a href="https://github.com/pardeike">pardeike - github - 20$</a></li>
+    <li>💰 <a href="https://github.com/kzu">kzu - github - 5$</a></li>
+    <li>💰 <a href="https://github.com/0x0ade">0x0ade - patreon - 10$</a></li>
+    <li>💰 <a href="https://github.com/Elringus"><s>elringus - ko-fi - 9$</s></a></li>
+  </ul>
+</details>
+
 <details open>
   <summary>Other:</summary>
   <ul>
