@@ -21,6 +21,7 @@
     <ul>
       <li>📂 <a href="https://github.com/BUTR/Harmony.Extensions">Harmony.Extensions</a> - extends <a href="https://github.com/pardeike/Harmony">Harmony</a>.</li>
       <li>📂 <a href="https://github.com/BUTR/Bannerlord.BUTR.Shared">Bannerlord.BUTR.Shared</a></li>
+      <li>📂 <a href="https://github.com/BUTR/Bannerlord.ModuleManager">Bannerlord.ModuleManager</a> - provides JS/TS/C# libraries for managing Module dependencies </li>
       <li>📂 <a href="https://github.com/BUTR/BUTR.DependencyInjection">BUTR.DependencyInjection</a></li>
     </ul>
 </details>
@@ -73,8 +74,8 @@
 <details>
   <summary>Sponsoring:</summary>
   <ul>
-    <li>💰 <a href="https://github.com/pardeike">pardeike - github - 20$</a></li>
-    <li>💰 <a href="https://github.com/kzu">kzu - github - 5$</a></li>
+    <li>💰 <a href="https://github.com/pardeike">pardeike - github sponsors - 20$</a></li>
+    <li>💰 <a href="https://github.com/kzu">kzu - github sponsors - 5$</a></li>
     <li>💰 <a href="https://github.com/0x0ade">0x0ade - patreon - 10$</a></li>
     <li>💰 <a href="https://github.com/Elringus"><s>elringus - ko-fi - 9$</s></a></li>
   </ul>
