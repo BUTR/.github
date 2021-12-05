@@ -29,6 +29,7 @@
 <details>
   <summary>Tools:</summary>
     <ul>
+      <li>🧰 <a href="https://github.com/BUTR/BUTR.Harmony.Analyzer">BUTR.Harmony.Analyzer</a> - Roslyn analyzer for <a href="https://github.com/pardeike/Harmony">Harmony</a>.</li>
       <li>🧰 <a href="https://github.com/BUTR/FetchBannerlordVersion">FetchBannerlordVersion</a></li>
       <li>🧰 <a href="https://github.com/BUTR/Bannerlord.BuildResources">Bannerlord.BuildResources</a></li>
       <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ChangelogParser">Bannerlord.ChangelogParser</a></li>
