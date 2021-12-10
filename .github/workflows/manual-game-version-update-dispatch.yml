@@ -1,0 +1,25 @@
+name: Manual Game Version Update Dispatch
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      # Trigger projects that depend on the NuGet packages
+      - name: Dispatch
+        uses: guilouro/multiple-repositories-dispatch@master
+        with:
+          repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
+          repositories: |
+            BUTR/Bannerlord.ReferenceAssemblies.Documentation
+            BUTR/Bannerlord.UIExtenderEx
+            BUTR/Bannerlord.ButterLib
+            Aragas/Bannerlord.MBOptionScreen
+            BUTR/Bannerlord.BUTRLoader
+            BUTR/Bannerlord.BUTR.Shared
+            BUTR/Bannerlord.ReferenceAssemblies.Diff
+            BUTR/AssemblyDiffer
+          event_type: game_version_update
+          client_payload: '{"github": ${{ toJson(github) }}}'
