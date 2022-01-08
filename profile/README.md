@@ -15,6 +15,14 @@
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.BUTRLoader">BUTRLoader</a></li>
   </ul>
 </details>
+
+<details>
+  <summary>Mod Ports:</summary>
+  <ul>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.SettlementIcons">Settlement Icons </a></li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.YellToInspire">Yell To Inspire</a></li>
+  </ul>
+</details>
  
 <details open>
   <summary>Libraries:</summary>
