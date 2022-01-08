@@ -66,6 +66,7 @@
 <details>
   <summary>Web Services:</summary>
     <ul>
+      <li>🌐 <a href="https://github.com/BUTR/BUTR.CrashReportServer">BUTR.CrashReportServer</a></li>
       <li>🌐 <a href="https://github.com/BUTR/BUTR.CrashReportViewer">BUTR.CrashReportViewer</a></li>
       <li>🌐 <a href="https://github.com/BUTR/NexusMods.ArticleViewer">NexusMods.ArticleViewer</a></li>
     </ul>
