@@ -29,6 +29,7 @@
     <ul>
       <li>📂 <a href="https://github.com/BUTR/Harmony.Extensions">Harmony.Extensions</a> - extends <a href="https://github.com/pardeike/Harmony">Harmony</a>.</li>
       <li>📂 <a href="https://github.com/BUTR/Bannerlord.BUTR.Shared">Bannerlord.BUTR.Shared</a></li>
+      <li>📂 <a href="https://github.com/BUTR/Bannerlord.ModuleLoader">Bannerlord.ModuleLoader</a></li>
       <li>📂 <a href="https://github.com/BUTR/Bannerlord.ModuleManager">Bannerlord.ModuleManager</a> - provides JS/TS/C# libraries for managing Module dependencies </li>
       <li>📂 <a href="https://github.com/BUTR/BUTR.DependencyInjection">BUTR.DependencyInjection</a></li>
     </ul>
