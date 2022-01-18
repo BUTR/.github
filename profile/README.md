@@ -19,8 +19,9 @@
 <details>
   <summary>Mod Ports:</summary>
   <ul>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.SettlementIcons">Settlement Icons </a></li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.PlayerSwitcher">Player Switcher</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.YellToInspire">Yell To Inspire</a></li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.SettlementIcons">Settlement Icons </a></li>
   </ul>
 </details>
  
