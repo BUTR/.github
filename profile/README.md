@@ -17,7 +17,7 @@
 </details>
 
 <details>
-  <summary>Mod Ports:</summary>
+  <summary>Gameplay Mod Ports:</summary>
   <ul>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.PlayerSwitcher">Player Switcher</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.YellToInspire">Yell To Inspire</a></li>
