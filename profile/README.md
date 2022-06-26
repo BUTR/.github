@@ -1,18 +1,18 @@
 <details open>
   <summary>Module Template:</summary>
   <ul>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.Module.Template">Bannerlord.Module.Template</a> - for Visual Studio and dotnet.</li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.Module.Template">Bannerlord.Module.Template</a> - for Visual Studio/Rider and dotnet CLI.</li>
   </ul>
 </details>
 
 <details open>
   <summary>Mods:</summary>
   <ul>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.Harmony">Harmony</a></li>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.UIExtenderEx">UIExtenderEx</a></li>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.ButterLib">ButterLib</a></li>
-    <li>📁 <a href="https://github.com/Aragas/Bannerlord.MBOptionScreen">Mod Configuration Menu</a></li>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.BUTRLoader">BUTRLoader</a></li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.Harmony">Harmony</a> - provides a centralized version of Harmony.</li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.UIExtenderEx">UIExtenderEx</a> - library for manipulating the UI.</li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.ButterLib">ButterLib</a> - provides some game fixes and a modding API on top of the game.</li>
+    <li>📁 <a href="https://github.com/Aragas/Bannerlord.MBOptionScreen">Mod Configuration Menu</a> - an API for declaring settings for mods.</li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.BUTRLoader">BUTRLoader</a> - extends the game launcher and fixes mod load order.</li>
   </ul>
 </details>
 
@@ -29,10 +29,10 @@
   <summary>Libraries:</summary>
     <ul>
       <li>📂 <a href="https://github.com/BUTR/Harmony.Extensions">Harmony.Extensions</a> - extends <a href="https://github.com/pardeike/Harmony">Harmony</a>.</li>
-      <li>📂 <a href="https://github.com/BUTR/Bannerlord.BUTR.Shared">Bannerlord.BUTR.Shared</a></li>
-      <li>📂 <a href="https://github.com/BUTR/Bannerlord.ModuleLoader">Bannerlord.ModuleLoader</a></li>
-      <li>📂 <a href="https://github.com/BUTR/Bannerlord.ModuleManager">Bannerlord.ModuleManager</a> - provides JS/TS/C# libraries for managing Module dependencies </li>
-      <li>📂 <a href="https://github.com/BUTR/BUTR.DependencyInjection">BUTR.DependencyInjection</a></li>
+      <li>📂 <a href="https://github.com/BUTR/Bannerlord.BUTR.Shared">Bannerlord.BUTR.Shared</a> - shared code for the BUTR repositories.</li>
+      <li>📂 <a href="https://github.com/BUTR/Bannerlord.ModuleLoader">Bannerlord.ModuleLoader</a> - provides a loader for supporting multiple game version within one mod.</li>
+      <li>📂 <a href="https://github.com/BUTR/Bannerlord.ModuleManager">Bannerlord.ModuleManager</a> - provides JS/TS/C# libraries for managing Module dependencies. </li>
+      <li>📂 <a href="https://github.com/BUTR/BUTR.DependencyInjection">BUTR.DependencyInjection</a> - provides a simple DI that can be extended.</li>
     </ul>
 </details>
   
@@ -40,11 +40,12 @@
   <summary>Tools:</summary>
     <ul>
       <li>🧰 <a href="https://github.com/BUTR/BUTR.Harmony.Analyzer">BUTR.Harmony.Analyzer</a> - Roslyn analyzer for <a href="https://github.com/pardeike/Harmony">Harmony</a>.</li>
-      <li>🧰 <a href="https://github.com/BUTR/FetchBannerlordVersion">FetchBannerlordVersion</a></li>
-      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.BuildResources">Bannerlord.BuildResources</a></li>
-      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ChangelogParser">Bannerlord.ChangelogParser</a></li>
-      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.LocalizationParser">Bannerlord.LocalizationParser</a></li>
-      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ReferenceAssemblies">Bannerlord.ReferenceAssemblies</a></li>
+      <li>🧰 <a href="https://github.com/BUTR/FetchBannerlordVersion">FetchBannerlordVersion</a> - fetches the version string from the game's assembly directory.</li>
+      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.BuildResources">Bannerlord.BuildResources</a> - resources for building Bannerlord modules.</li>
+      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ChangelogParser">Bannerlord.ChangelogParser</a> - parses a custom changelog format inspired by Factorio.</li>
+      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.LocalizationParser">Bannerlord.LocalizationParser</a> - outputs all hardcoded localization strings in the game.</li>
+      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ReferenceAssemblies">Bannerlord.ReferenceAssemblies</a> - generates reference assemblies starting from e1.1.0.</li>
+      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.XmlSchemas">Bannerlord.XmlSchemas</a> - XML Schemas for the community.</li>
     </ul>
 </details>
   
