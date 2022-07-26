@@ -23,10 +23,10 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Setup .NET Core
+      - name: Setup .NET 6
         uses: actions/setup-dotnet@master
         with:
-          dotnet-version: 5.0.x
+          dotnet-version: 6.x.x
 
       - name: Setup BUTR GPR
         uses: actions/setup-dotnet@master
