@@ -176,10 +176,18 @@ namespace DotNetTools
                     var url = $"http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid={options.AppId}&count={options.Count}&maxlength=1&format=json";
                     var response =  await client.GetFromJsonAsync<NewsForApp>(url);
 
-                    var secrets = host.Services.GetRequiredService<IOptions<SecretsOptions>>().Value;
-                    var dateOfLastPost = secrets.DateOfLastPost;
+                    long dateOfLastPost;
+                    try
+                    {
+                        var secrets = host.Services.GetRequiredService<IOptions<SecretsOptions>>().Value;
+                        dateOfLastPost = secrets.DateOfLastPost;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        dateOfLastPost = 0;
+                    }
 
-                    var lastPatchNotes = response?.AppNews.NewsItems.FirstOrDefault(n => n.Tags?.Any(t => t == "patchnotes" || t == "mod_reviewed" || t == "mod_require_rereview") == true);
+                    var lastPatchNotes = response?.AppNews.NewsItems.FirstOrDefault(n => n.Tags?.Any(t => t is "patchnotes" or "mod_reviewed" or "mod_require_rereview") == true);
                     Console.SetOut(@out);
                     if (lastPatchNotes is null || lastPatchNotes.Date == dateOfLastPost)
                         Console.WriteLine(0);
