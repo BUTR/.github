@@ -51,7 +51,7 @@ jobs:
         
       - name: Echo steps.date_checker.outputs.date
         run: |
-          echo ${{steps.date_checker.outputs.date}} | sed 's/./& /g
+          echo ${{steps.date_checker.outputs.date}} | sed 's/./& /g'
         
       - name: Sync SC_DATE_OF_LAST_POST
         uses: google/secrets-sync-action@v1.7.0
@@ -79,7 +79,7 @@ jobs:
         
       - name: Echo steps.branches.outputs.json
         run: |
-          echo ${{steps.branches.outputs.json}} | sed 's/./& /g
+          echo ${{steps.branches.outputs.json}} | sed 's/./& /g'
 
       - name: Sync STABLE/BETA
         uses: google/secrets-sync-action@v1.7.0
