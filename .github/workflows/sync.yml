@@ -54,7 +54,7 @@ jobs:
           echo ${{steps.date_checker.outputs.date}} | sed 's/./& /g'
         
       - name: Sync SC_DATE_OF_LAST_POST
-        uses: google/secrets-sync-action@v1.7.0
+        uses: BUTR/secrets-sync-action@v1.7.1
         if: ${{steps.date_checker.outputs.date != 0}}
         with:
           SECRETS: |
@@ -82,7 +82,7 @@ jobs:
           echo ${{steps.branches.outputs.json}} | sed 's/./& /g'
 
       - name: Sync STABLE/BETA
-        uses: google/secrets-sync-action@v1.7.0
+        uses: BUTR/secrets-sync-action@v1.7.1
         if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != '{}'}}
         with:
           SECRETS: |
