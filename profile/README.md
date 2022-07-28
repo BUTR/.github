@@ -14,6 +14,7 @@
     <li>📁 <a href="https://github.com/Aragas/Bannerlord.MBOptionScreen">Mod Configuration Menu</a> - an API for declaring settings for mods.</li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.BUTRLoader">BUTRLoader</a> - extends the game launcher and fixes mod load order.</li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.Python">Bannerlord.IronPython</a> - adds an experimental ability to use mods written in IronPython.</li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.PHP">Bannerlord.PHP</a> - adds an experimental ability to use mods written in PHP.</li>
   </ul>
 </details>
 
@@ -80,7 +81,6 @@
   <summary>Modding with other languages, proof of concept:</summary>
   <ul>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.Lua">Bannerlord.Lua</a></li>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.PHP">Bannerlord.PHP</a></li>
   </ul>
 </details>
 
