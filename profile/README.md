@@ -13,6 +13,7 @@
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.ButterLib">ButterLib</a> - provides some game fixes and a modding API on top of the game.</li>
     <li>📁 <a href="https://github.com/Aragas/Bannerlord.MBOptionScreen">Mod Configuration Menu</a> - an API for declaring settings for mods.</li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.BUTRLoader">BUTRLoader</a> - extends the game launcher and fixes mod load order.</li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.Python">Bannerlord.IronPython</a></li>
   </ul>
 </details>
 
@@ -79,7 +80,6 @@
   <summary>Modding with other languages, proof of concept:</summary>
   <ul>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.Lua">Bannerlord.Lua</a></li>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.Python">Bannerlord.Python</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.PHP">Bannerlord.PHP</a></li>
   </ul>
 </details>
