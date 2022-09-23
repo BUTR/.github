@@ -58,6 +58,7 @@
       <li>:octocat: <a href="https://github.com/BUTR/actions-tests-setup">actions-tests-setup</a></li>
       <li>:octocat: <a href="https://github.com/BUTR/actions-docfx-setup">actions-docfx-setup</a></li>
       <li>:octocat: <a href="https://github.com/BUTR/actions-code-format-setup">actions-code-format-setup</a></li>
+      <li>:octocat: <a href="https://github.com/BUTR/workflows">workflows</a></li>
     </ul>
 </details>
 
