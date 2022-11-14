@@ -74,7 +74,6 @@
   <summary>Web Services:</summary>
     <ul>
       <li>🌐 <a href="https://github.com/BUTR/BUTR.Site.NexusMods">BUTR.Site.NexusMods</a></li>
-      <li>🌐 <a href="https://github.com/BUTR/NexusMods.ArticleViewer">NexusMods.ArticleViewer</a></li>
     </ul>
 </details>
 
