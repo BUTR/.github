@@ -1,144 +1,28 @@
-﻿using HarmonyLib;
-
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-
-using SteamKit2;
 
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Hosting;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
-using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
+using Bannerlord.ModuleManager;
+using DotNetTools.Models;
+using DotNetTools.Options;
 
 namespace DotNetTools
 {
-    public class NewsForApp
-    {
-        [JsonPropertyName("appnews")]
-        public AppNews AppNews { get; set; }
-    }
-    public class AppNews
-    {
-        [JsonPropertyName("appid")]
-        public long AppId { get; set; }
-
-        [JsonPropertyName("newsitems")]
-        public NewsItem[] NewsItems { get; set; }
-
-        [JsonPropertyName("count")]
-        public long Count { get; set; }
-    }
-    public class NewsItem
-    {
-        [JsonPropertyName("gid")]
-        public string GId { get; set; }
-
-        [JsonPropertyName("title")]
-        public string Title { get; set; }
-
-        [JsonPropertyName("url")]
-        public Uri Url { get; set; }
-
-        [JsonPropertyName("is_external_url")]
-        public bool IsExternalUrl { get; set; }
-
-        [JsonPropertyName("author")]
-        public string Author { get; set; }
-
-        [JsonPropertyName("contents")]
-        public string Contents { get; set; }
-
-        [JsonPropertyName("feedlabel")]
-        public string FeedLabel { get; set; }
-
-        [JsonPropertyName("date")]
-        public long Date { get; set; }
-
-        [JsonPropertyName("feedname")]
-        public string FeedName { get; set; }
-
-        [JsonPropertyName("feed_type")]
-        public long FeedType { get; set; }
-
-        [JsonPropertyName("appid")]
-        public long Appid { get; set; }
-
-        [JsonPropertyName("tags")]
-        public string[]? Tags { get; set; }
-    }
-
-    public class CheckNewsOptions
-    {
-        public string AppId { get; set; } = default!;
-        public int Count { get; set; } = 10;
-    }
-    public class SecretsOptions
-    {
-        public long DateOfLastPost { get; set; } = default!;
-    }
-    public class SteamOptions
-    {
-        public string SteamLogin { get; set; } = default!;
-        public string SteamPassword { get; set; } = default!;
-        public uint SteamAppId { get; set; } = default!;
-        public uint SteamDepotId { get; set; } = default!;
-    }
-
-    public enum BranchType
-    {
-        Unknown = 'i',
-        Alpha = 'a',
-        Beta = 'b',
-        EarlyAccess = 'e',
-        Release = 'v',
-        Development = 'd'
-    }
-    public struct SteamAppBranch
-    {
-        public static readonly IReadOnlyDictionary<BranchType, string?> VersionPrefixToName = new SortedList<BranchType, string?>
-        {
-            { BranchType.Alpha, "Alpha" },
-            { BranchType.Beta, "Beta" },
-            { BranchType.EarlyAccess, "EarlyAccess" },
-            { BranchType.Development, "Development" },
-            { BranchType.Release, null },
-            { BranchType.Unknown, "Invalid" },
-        };
-
-        public BranchType Prefix
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(Name) || Name.Length < 1 || !char.IsDigit(Name[1]) || !Enum.IsDefined(typeof(BranchType), (int) Name[0]))
-                    return BranchType.Unknown;
-                return (BranchType) Name[0];
-            }
-        }
-
-        public string Name { get; init; }
-        public uint AppId { get; init; }
-        public uint DepotId { get; init; }
-        public uint BuildId { get; init; }
-
-        public string GetVersion(string appVersion) =>
-            //char.IsDigit(Name[1]) ? $"{Name[1..]}.{appVersion}-{Name[0]}" : "";
-            char.IsDigit(Name[1]) ? $"{Name[1..]}.{appVersion}" : "";
-
-        public override string ToString() => $"{Name} ({AppId} {DepotId} {BuildId})";
-    }
-
     public static class Program
     {
         public static async Task Main(string[] args)
@@ -161,8 +45,10 @@ namespace DotNetTools
                 new Option<string>("--appId"),
                 new Option<string>("--count")
             };
-            checkNews.Handler = CommandHandler.Create(async (IHost host) =>
+            checkNews.SetHandler(async context =>
             {
+                var host = context.GetHost();
+
                 var @out = Console.Out;
                 Console.SetOut(TextWriter.Null);
 
@@ -202,60 +88,44 @@ namespace DotNetTools
                 }
             });
 
-            var getBranches = new Command("get-branches")
+
+            var getBranches = new Command("get-latest-version")
             {
                 new Option<string>("--steamLogin"),
                 new Option<string>("--steamPassword"),
-                new Option<string>("--steamAppId"),
-                new Option<string>("--steamDepotId")
+                new Option<int>("--steamAppId"),
+                new Option<List<int>>("--steamDepotId"),
+                new Option<string>("--steamOS"),
+                new Option<string>("--steamOSArch"),
             };
-            getBranches.Handler = CommandHandler.Create((IHost host) =>
+            getBranches.Handler = CommandHandler.Create<SteamOptions, IHost>(async (options, host) =>
             {
                 var @out = Console.Out;
                 Console.SetOut(TextWriter.Null);
 
                 try
                 {
-                    var steamOptions = host.Services.GetRequiredService<IOptions<SteamOptions>>().Value;
+                    DepotDownloaderExt.Init();
+                    DepotDownloaderExt.AccountSettingsStoreLoadFromFile("account.config");
+                    DepotDownloaderExt.DepotDownloaderProgramInitializeSteam(options.SteamLogin, options.SteamPassword);
+                    DepotDownloaderExt.ContentDownloadersteam3RequestAppInfo((uint) options.SteamAppId);
 
-                    var programType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.Program");
-                    var accountSettingsStoreType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.AccountSettingsStore");
-                    var contentDownloaderType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.ContentDownloader");
-                    var steam3SessionType = typeof(DepotDownloader.ContentDownloaderException).Assembly.GetType("DepotDownloader.Steam3Session");
+                    var tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName().Replace(".", string.Empty));
+                    Directory.CreateDirectory(tempFolder);
+                    DepotDownloaderExt.ContentDownloaderConfigSetMaxDownloads(4);
+                    DepotDownloaderExt.ContentDownloaderConfigSetInstallDirectory(tempFolder);
 
-                    var loadFromFileMethod = AccessTools.Method(accountSettingsStoreType, "LoadFromFile");
-                    var initializeSteamMethod = AccessTools.Method(programType, "InitializeSteam");
-                    var requestAppInfoMethod = AccessTools.Method(steam3SessionType, "RequestAppInfo");
-                    var getSteam3AppSectionMethod = AccessTools.Method(contentDownloaderType, "GetSteam3AppSection");
-                    var shutdownSteam3Method = AccessTools.Method(contentDownloaderType, "ShutdownSteam3");
+                    var stableVersion = await GetBranchVersion("public", tempFolder, options, CancellationToken.None);
+                    var betaVersion = GetBetaBranch(options, CancellationToken.None) is { } betaBranch
+                        ? await GetBranchVersion(betaBranch, tempFolder, options, CancellationToken.None)
+                        : null;
 
-                    var steam3Field = AccessTools.Field(contentDownloaderType, "steam3");
+                    Directory.Delete(tempFolder, true);
 
-                    loadFromFileMethod.Invoke(null, new object?[] { "account.config" });
-                    initializeSteamMethod.Invoke(null, new object?[] { steamOptions.SteamLogin, steamOptions.SteamPassword });
-                    var steam3 = steam3Field.GetValue(null);
-                    requestAppInfoMethod.Invoke(steam3, new object?[] { steamOptions.SteamAppId, false });
-                    var depots = getSteam3AppSectionMethod.Invoke(null, new object?[] { steamOptions.SteamAppId, EAppInfoSection.Depots }) as KeyValue;
-                    shutdownSteam3Method.Invoke(null, Array.Empty<object>());
-
-                    var branches = depots["branches"].Children.ConvertAll(c => new SteamAppBranch
-                    {
-                        Name = c.Name!,
-                        AppId = steamOptions.SteamAppId,
-                        DepotId = steamOptions.SteamDepotId,
-                        BuildId = uint.TryParse(c["buildid"].Value!, out var r) ? r : 0
-                    });
-
-                    //var prefixes = new HashSet<BranchType>(branches.Select(branch => branch.Prefix).Where(b => b != BranchType.Unknown));
-
-                    var publicBranch = branches.First(branch => branch.Name == "public");
-                    var otherBranches = branches.Where(branch => branch.Prefix != BranchType.Unknown).ToList();
-
-                    var stableBranchVersion = otherBranches.Find(branch => branch.BuildId == publicBranch.BuildId);
-                    var betaBranchVersion = otherBranches.Last();
+                    DepotDownloaderExt.ContentDownloaderShutdownSteam3();
 
                     Console.SetOut(@out);
-                    Console.WriteLine($"{{ stable: \"{stableBranchVersion.Name}\", beta: \"{betaBranchVersion.Name}\" }}");
+                    Console.WriteLine(betaVersion is null ? $"{{ stable: \"{stableVersion}\" }}" : $"{{ stable: \"{stableVersion}\", beta: \"{betaVersion}\" }}");
                 }
                 catch (Exception e)
                 {
@@ -305,5 +175,49 @@ namespace DotNetTools
                 services.Configure<CheckNewsOptions>(context.Configuration);
                 services.Configure<SteamOptions>(context.Configuration);
             });
+
+        private static string? GetBetaBranch(SteamOptions options, CancellationToken ct)
+        {
+            var depots = DepotDownloaderExt.ContentDownloaderGetSteam3AppSection((uint) options.SteamAppId);
+            var branches = depots["branches"];
+            return branches.Children
+                .Where(x => x["pwdrequired"].Value != "1" && x["lcsrequired"].Value != "1")
+                .Where(x => x["description"].Value == "beta")
+                .Select(x => x.Name)
+                .FirstOrDefault();
+        }
+
+        private static async Task<string?> GetBranchVersion(string branchName, string tempFolder, SteamOptions options, CancellationToken ct)
+        {
+            DepotDownloaderExt.ContentDownloaderConfigSetUsingFileList(true);
+            var filesToDownload = DepotDownloaderExt.ContentDownloaderConfigGetFilesToDownload();
+            filesToDownload.Clear();
+            filesToDownload.Add("bin\\Win64_Shipping_Client\\Version.xml");
+            filesToDownload.Add("bin/Win64_Shipping_Client/Version.xml");
+            var filesToDownloadRegex = DepotDownloaderExt.ContentDownloaderConfigGetFilesToDownloadRegex();
+            filesToDownloadRegex.Clear();
+
+            await DepotDownloaderExt.ContentDownloaderDownloadAppAsync(
+                (uint) options.SteamAppId,
+                options.SteamDepotId.Select(x => ((uint) x, ulong.MaxValue)).ToList(),
+                branchName,
+                options.SteamOS,
+                options.SteamOSArch,
+                null!,
+                false,
+                false).ConfigureAwait(false);
+            var file = Path.Combine(tempFolder, "bin\\Win64_Shipping_Client\\Version.xml");
+            var content = await File.ReadAllTextAsync(file, ct);
+            var toSearch1 = "<Singleplayer Value=\"";
+            var idx1 = content.IndexOf(toSearch1, StringComparison.Ordinal);
+            var idx2 = idx1 != -1 ? content.AsSpan(idx1 + toSearch1.Length).IndexOf("\"") : -1;
+            if (idx1 != -1 && idx2 != -1)
+            {
+                var version = content.AsSpan(idx1 + toSearch1.Length, idx2).ToString();
+                return ApplicationVersion.TryParse(version, out _) ? version : null;
+            }
+            return null;
+
+        }
     }
 }

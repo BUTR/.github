@@ -15,7 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{ED67E8
 	ProjectSection(SolutionItems) = preProject
 		..\.github\resources\FileFilters.regexp = ..\.github\resources\FileFilters.regexp
 		..\.github\workflows\sync.yml = ..\.github\workflows\sync.yml
-		..\.github\workflows\verify-nexusmods-cookies.yml = ..\.github\workflows\verify-nexusmods-cookies.yml
 	EndProjectSection
 EndProject
 Global
