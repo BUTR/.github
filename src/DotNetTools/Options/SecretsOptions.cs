@@ -2,6 +2,6 @@
 {
     public sealed class SecretsOptions
     {
-        public required long DateOfLastPost { get; init; }
+        public /*required*/ long DateOfLastPost { get; init; }
     }
 }
