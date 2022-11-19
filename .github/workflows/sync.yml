@@ -15,7 +15,7 @@ env:
 
 jobs:
   sync:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -24,12 +24,12 @@ jobs:
           fetch-depth: 0
 
       - name: Setup .NET 6
-        uses: actions/setup-dotnet@master
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 6.x.x
 
       - name: Setup BUTR GPR
-        uses: actions/setup-dotnet@master
+        uses: actions/setup-dotnet@v3
         with:
           source-url: https://nuget.pkg.github.com/BUTR/index.json
         env:
@@ -69,7 +69,7 @@ jobs:
         id: branches
         run: >-
            if ($${{steps.date_checker.outputs.date != 0}}) {
-             $output_v = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build -- get-branches --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551;
+             $output_v = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build -- get-latest-version --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551 --steamDepotId 261552 --steamOS windows --steamOSArch 64;
              echo "::set-output name=json::$output_v"
            }
            if (!$${{steps.date_checker.outputs.date != 0}}) {
@@ -107,10 +107,8 @@ jobs:
           client_payload: '{"github": ${{ toJson(github) }}}'
 
       - name: Sleep for 15 minutes
-        uses: jakejarvis/wait-action@master
-        if: ${{steps.date_checker.outputs.date != 0}}
-        with:
-          time: '15m'
+        run: Start-Sleep -s 900
+        shell: powershell
 
       # Trigger projects that depend on the NuGet packages
       - name: Dispatch
