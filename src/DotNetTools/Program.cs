@@ -84,8 +84,10 @@ namespace DotNetTools
                 {
                     Console.SetOut(@out);
                     Console.WriteLine(e);
-                    throw;
                 }
+
+                var applicationLifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
+                applicationLifetime.StopApplication();
             });
 
 
@@ -131,8 +133,10 @@ namespace DotNetTools
                 {
                     Console.SetOut(@out);
                     Console.WriteLine(e);
-                    throw;
                 }
+
+                var applicationLifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
+                applicationLifetime.StopApplication();
             });
 
             var root = new RootCommand { checkNews, getBranches };
@@ -214,10 +218,13 @@ namespace DotNetTools
             if (idx1 != -1 && idx2 != -1)
             {
                 var version = content.AsSpan(idx1 + toSearch1.Length, idx2).ToString();
-                return ApplicationVersion.TryParse(version, out _) ? version : null;
+                return ApplicationVersion.TryParse(version, out var appVersion) ? ToString(appVersion) : null;
             }
             return null;
 
         }
+
+        private static string ToString(ApplicationVersion av) =>
+            $"{ApplicationVersion.GetPrefix(av.ApplicationVersionType)}{av.Major}.{av.Minor}.{av.Revision}";
     }
 }
