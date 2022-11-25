@@ -18,11 +18,17 @@
   </ul>
 </details>
 
-<details>
-  <summary>Gameplay Mod Ports:</summary>
+<details open>
+  <summary>Gameplay Mods:</summary>
   <ul>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.PlayerSwitcher">Player Switcher</a></li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.YellToInspire">Yell To Inspire</a></li>
+  </ul>
+</details>
+
+<details>
+  <summary>Unsupported Mods:</summary>
+  <ul>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.SettlementIcons">Settlement Icons </a></li>
   </ul>
 </details>
