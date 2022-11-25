@@ -1,0 +1,31 @@
+name: Sync for Aragas
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync NEXUSMODS_COOKIES
+        uses: BUTR/secrets-sync-action@v1.7.1
+        with:
+          SECRETS: |
+            ^NEXUSMODS_COOKIES
+          REPOSITORIES: |
+            ^BUTR/Bannerlord.Harmony
+            ^BUTR/Bannerlord.UIExtenderEx
+            ^BUTR/Bannerlord.ButterLib
+            ^BUTR/Bannerlord.BUTRLoader
+            ^BUTR/Bannerlord.Python
+            ^BUTR/Bannerlord.PHP
+            ^BUTR/Bannerlord.Lua
+            ^BUTR/Bannerlord.PlayerSwitcher
+            ^BUTR/Bannerlord.YellToInspire
+            ^BUTR/
+            ^Aragas/Bannerlord.MBOptionScreen
+            ^Aragas/Aragas.Civilized
+            ^Aragas/Aragas.CastleTownWithHorse
+          GITHUB_TOKEN: ${{secrets.REPO_ACCESS_TOKEN}}
+        env:
+          NEXUSMODS_COOKIES: ${{secrets.ARAGAS_NEXUSMODS_COOKIES}}
