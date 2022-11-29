@@ -15,6 +15,7 @@
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.BUTRLoader">BUTRLoader</a> - extends the game launcher and fixes mod load order.</li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.Python">Bannerlord.IronPython</a> - adds an experimental ability to use mods written in IronPython.</li>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.PHP">Bannerlord.PHP</a> - adds an experimental ability to use mods written in PHP.</li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.DiscordRichPresence">Bannerlord.DiscordRichPresence</a> - adds support fro Discord Rich Presence.</li>
   </ul>
 </details>
 
