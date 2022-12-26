@@ -20,6 +20,7 @@ jobs:
             ^BUTR/Bannerlord.Python
             ^BUTR/Bannerlord.PHP
             ^BUTR/Bannerlord.Lua
+            ^BUTR/Bannerlord.DiscordRichPresence 
             ^BUTR/Bannerlord.PlayerSwitcher
             ^BUTR/Bannerlord.YellToInspire
             ^BUTR/
