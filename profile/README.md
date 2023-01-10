@@ -106,6 +106,7 @@
 <details open>
   <summary>Other:</summary>
   <ul>
+    <li>📝 <a href="https://crowdin.com/profile/Aragas">Crowdin Translations</a></li>
     <li>📝 <a href="https://github.com/BUTR/documentation">BUTR Documentation</a></li>
     <li>📝 <a href="https://github.com/BUTR/Bannerlord.ReferenceAssemblies.Documentation">Game Public API Documentation</a></li>
     <li>📝 <a href="https://butr.github.io/Bannerlord.ReferenceAssemblies.Diff">Game Stable/Beta Version Public API Diff</a></li>
