@@ -45,6 +45,12 @@
     </ul>
 </details>
   
+<details open>
+  <summary>Vortex Extension:</summary>
+    <ul>
+      <li>🧰 <a href="https://github.com/BUTR/game-mount-and-blade2">game-mount-and-blade2</a> - extension for <a href="https://github.com/Nexus-Mods/Vortex">Vortex</a>.</li>
+</details>
+  
 <details>
   <summary>Tools:</summary>
     <ul>
