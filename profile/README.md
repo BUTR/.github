@@ -61,6 +61,9 @@
       <li>🧰 <a href="https://github.com/BUTR/Bannerlord.LocalizationParser">Bannerlord.LocalizationParser</a> - outputs all hardcoded localization strings in the game.</li>
       <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ReferenceAssemblies">Bannerlord.ReferenceAssemblies</a> - generates reference assemblies starting from e1.1.0.</li>
       <li>🧰 <a href="https://github.com/BUTR/Bannerlord.XmlSchemas">Bannerlord.XmlSchemas</a> - XML Schemas for the community.</li>
+      <li>🧰 <a href="https://github.com/BUTR/Bannerlord.SteamWorkshop">Bannerlord.SteamWorkshop</a> - Simple tool that can login to Steam and upload content mods for Bannerlord.
+
+</li>
     </ul>
 </details>
   
