@@ -103,11 +103,12 @@
 
 <details>
   <summary>Sponsoring:</summary>
+  We had some issues with PayPal and expect to continue the sponsorship soon.
   <ul>
-    <li>💰 <a href="https://github.com/pardeike">pardeike - github sponsors - 20$</a></li>
-    <li>💰 <a href="https://github.com/kzu">kzu - github sponsors - 5$</a></li>
-    <li>💰 <a href="https://github.com/0x0ade">0x0ade - patreon - 10$</a></li>
-    <li>💰 <a href="https://github.com/jbevain">jbevain - github sponsors - 15$</a></li>
+    <li>💰 <a href="https://github.com/pardeike"><s>pardeike - github sponsors - 20$</s></a></li>
+    <li>💰 <a href="https://github.com/kzu"><s>kzu - github sponsors - 5$</s></a></li>
+    <li>💰 <a href="https://github.com/0x0ade"><s>0x0ade - patreon - 10$</s></a></li>
+    <li>💰 <a href="https://github.com/jbevain"><s>jbevain - github sponsors - 15$</s></a></li>
     <li>💰 <a href="https://github.com/Elringus"><s>elringus - ko-fi - 9$</s></a></li>
   </ul>
 </details>
