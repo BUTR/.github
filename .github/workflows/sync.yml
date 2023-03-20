@@ -44,6 +44,8 @@ jobs:
         run: >-
            $date = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build -- check-news --appId 261550 --count 10;
            echo "::set-output name=date::$date";
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         continue-on-error: true
         shell: pwsh
         
