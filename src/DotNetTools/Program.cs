@@ -143,8 +143,8 @@ namespace DotNetTools
                         {
                             Credentials = new Credentials(Environment.GetEnvironmentVariable("GITHUB_TOKEN"))
                         };
-                        await github.Organization.Actions.Variables.Update("BUTR", "GAME_VERSION_STABLE", new UpdateOrganizationVariable(stableVersion, "public", Array.Empty<long>()));
-                        await github.Organization.Actions.Variables.Update("BUTR", "GAME_VERSION_BETA", new UpdateOrganizationVariable(betaVersion, "public", Array.Empty<long>()));
+                        await github.Organization.Actions.Variables.Update("BUTR", "GAME_VERSION_STABLE", new UpdateOrganizationVariable(stableVersion, "all", Array.Empty<long>()));
+                        await github.Organization.Actions.Variables.Update("BUTR", "GAME_VERSION_BETA", new UpdateOrganizationVariable(betaVersion, "all", Array.Empty<long>()));
                     }
                 }
                 catch (Exception e)
