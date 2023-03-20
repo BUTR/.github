@@ -49,10 +49,6 @@ jobs:
         continue-on-error: true
         shell: pwsh
         
-      - name: Echo steps.date_checker.outputs.date
-        run: |
-          echo ${{steps.date_checker.outputs.date}} | sed 's/./& /g'
-     
       - name: Run DotNetTools get-branches
         id: branches
         run: >-
@@ -67,10 +63,6 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
         shell: pwsh
         
-      - name: Echo steps.branches.outputs.json
-        run: |
-          echo ${{steps.branches.outputs.json}} | sed 's/./& /g'
-
       - name: Sync STABLE/BETA
         uses: BUTR/secrets-sync-action@v1.7.1
         if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != '{}'}}
