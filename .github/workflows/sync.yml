@@ -45,7 +45,7 @@ jobs:
            $date = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build -- check-news --appId 261550 --count 10;
            echo "::set-output name=date::$date";
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
         continue-on-error: true
         shell: pwsh
         
@@ -64,7 +64,7 @@ jobs:
              echo "::set-output name=json::{}"
            }
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
         shell: pwsh
         
       - name: Echo steps.branches.outputs.json
