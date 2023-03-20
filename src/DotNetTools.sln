@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{ED67E8
 		..\.github\workflows\sync.yml = ..\.github\workflows\sync.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Octokit", "octokit.net\Octokit\Octokit.csproj", "{825943B2-81D4-4B96-B2F8-DB5BE11BACC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{647252C2-DEE4-4AAC-A157-BF2CB06AFD99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{647252C2-DEE4-4AAC-A157-BF2CB06AFD99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{647252C2-DEE4-4AAC-A157-BF2CB06AFD99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{825943B2-81D4-4B96-B2F8-DB5BE11BACC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{825943B2-81D4-4B96-B2F8-DB5BE11BACC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{825943B2-81D4-4B96-B2F8-DB5BE11BACC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{825943B2-81D4-4B96-B2F8-DB5BE11BACC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -40,6 +46,7 @@ Global
 		{647252C2-DEE4-4AAC-A157-BF2CB06AFD99} = {503D7160-66C9-449D-B622-4F0D7DD7594B}
 		{503D7160-66C9-449D-B622-4F0D7DD7594B} = {26353BD2-9004-4EE6-846F-EAAEBA058759}
 		{ED67E883-45CB-49DE-9E19-E221A2A631F8} = {26353BD2-9004-4EE6-846F-EAAEBA058759}
+		{825943B2-81D4-4B96-B2F8-DB5BE11BACC6} = {503D7160-66C9-449D-B622-4F0D7DD7594B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA50DE17-1765-4CE9-9D91-76BF91700749}

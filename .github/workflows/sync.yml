@@ -44,27 +44,13 @@ jobs:
         run: >-
            $date = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build -- check-news --appId 261550 --count 10;
            echo "::set-output name=date::$date";
-        env:
-          DATEOFLASTPOST: ${{secrets.SC_DATE_OF_LAST_POST}}
         continue-on-error: true
         shell: pwsh
         
       - name: Echo steps.date_checker.outputs.date
         run: |
           echo ${{steps.date_checker.outputs.date}} | sed 's/./& /g'
-        
-      - name: Sync SC_DATE_OF_LAST_POST
-        uses: BUTR/secrets-sync-action@v1.7.1
-        if: ${{steps.date_checker.outputs.date != 0}}
-        with:
-          SECRETS: |
-            ^SC_
-          REPOSITORIES: |
-            ^BUTR/.github
-          GITHUB_TOKEN: ${{secrets.REPO_ACCESS_TOKEN}}
-        env:
-          SC_DATE_OF_LAST_POST: ${{steps.date_checker.outputs.date}}
-
+     
       - name: Run DotNetTools get-branches
         id: branches
         run: >-
@@ -75,6 +61,8 @@ jobs:
            if (!$${{steps.date_checker.outputs.date != 0}}) {
              echo "::set-output name=json::{}"
            }
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         shell: pwsh
         
       - name: Echo steps.branches.outputs.json

@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using Bannerlord.ModuleManager;
 using DotNetTools.Models;
 using DotNetTools.Options;
+using Octokit;
 
 namespace DotNetTools
 {
@@ -54,19 +55,24 @@ namespace DotNetTools
 
                 try
                 {
+                    var github = new GitHubClient(new ProductHeaderValue("BUTR Synchronization"))
+                    {
+                        Credentials = new Credentials(Environment.GetEnvironmentVariable("GITHUB_TOKEN"))
+                    };
+                    
                     var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
                     var client = httpClientFactory.CreateClient();
 
                     var options = host.Services.GetRequiredService<IOptions<CheckNewsOptions>>().Value;
 
-                    var url = $"http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid={options.AppId}&count={options.Count}&maxlength=1&format=json";
+                    var url = $"https://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid={options.AppId}&count={options.Count}&maxlength=1&format=json";
                     var response =  await client.GetFromJsonAsync<NewsForApp>(url);
 
                     long dateOfLastPost;
                     try
                     {
-                        var secrets = host.Services.GetRequiredService<IOptions<SecretsOptions>>().Value;
-                        dateOfLastPost = secrets.DateOfLastPost;
+                        var dateOfLastPostVariable = await github.Repository.Actions.Variables.Get("BUTR", ".github", "SC_DATE_OF_LAST_POST");
+                        dateOfLastPost = long.TryParse(dateOfLastPostVariable.Value, out var val) ? val : 0;
                     }
                     catch (InvalidOperationException)
                     {
@@ -74,6 +80,8 @@ namespace DotNetTools
                     }
 
                     var lastPatchNotes = response?.AppNews.NewsItems.FirstOrDefault(n => n.Tags?.Any(t => t is "patchnotes" or "mod_reviewed" or "mod_require_rereview") == true);
+                    await github.Repository.Actions.Variables.Update("BUTR", ".github", "SC_DATE_OF_LAST_POST", new UpdateRepositoryVariable { Value = lastPatchNotes?.Date.ToString() ?? "0"});
+                    
                     Console.SetOut(@out);
                     if (lastPatchNotes is null || lastPatchNotes.Date == dateOfLastPost)
                         Console.WriteLine(0);
@@ -128,6 +136,16 @@ namespace DotNetTools
 
                     Console.SetOut(@out);
                     Console.WriteLine(betaVersion is null ? $"{{ stable: \"{stableVersion}\" }}" : $"{{ stable: \"{stableVersion}\", beta: \"{betaVersion}\" }}");
+
+                    if (true)
+                    {
+                        var github = new GitHubClient(new ProductHeaderValue("BUTR Synchronization"))
+                        {
+                            Credentials = new Credentials(Environment.GetEnvironmentVariable("GITHUB_TOKEN"))
+                        };
+                        await github.Organization.Actions.Variables.Update("BUTR", "GAME_VERSION_STABLE", new UpdateOrganizationVariable(stableVersion, "public", Array.Empty<long>()));
+                        await github.Organization.Actions.Variables.Update("BUTR", "GAME_VERSION_BETA", new UpdateOrganizationVariable(betaVersion, "public", Array.Empty<long>()));
+                    }
                 }
                 catch (Exception e)
                 {
@@ -175,7 +193,6 @@ namespace DotNetTools
             {
                 services.AddHttpClient();
 
-                services.Configure<SecretsOptions>(context.Configuration);
                 services.Configure<CheckNewsOptions>(context.Configuration);
                 services.Configure<SteamOptions>(context.Configuration);
             });

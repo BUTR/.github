@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DepotDownloader\DepotDownloader\DepotDownloader.csproj" />
+    <ProjectReference Include="..\octokit.net\Octokit\Octokit.csproj" />
   </ItemGroup>
 
 </Project>
