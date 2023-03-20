@@ -55,7 +55,7 @@ namespace DotNetTools
 
                 try
                 {
-                    var github = new GitHubClient(new ProductHeaderValue("BUTR Synchronization"))
+                    var github = new GitHubClient(new ProductHeaderValue("BUTR"))
                     {
                         Credentials = new Credentials(Environment.GetEnvironmentVariable("GITHUB_TOKEN"))
                     };
@@ -139,7 +139,7 @@ namespace DotNetTools
 
                     if (true)
                     {
-                        var github = new GitHubClient(new ProductHeaderValue("BUTR Synchronization"))
+                        var github = new GitHubClient(new ProductHeaderValue("BUTR"))
                         {
                             Credentials = new Credentials(Environment.GetEnvironmentVariable("GITHUB_TOKEN"))
                         };
