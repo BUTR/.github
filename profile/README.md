@@ -104,6 +104,9 @@
 
 <details>
   <summary>Sponsoring:</summary>
+  <p>
+We believe that the underlying libraries that are used for modding games deserve support and recognition. We started to sponsor those libraries on GitHub, Patreon and other services. Even if the money isn't enough to provide full development time for the authors, every penny counts. So we ask the modding community to do the same! If your mod uses a library that has some sponsorship note, do support them! Only a healthy foundation can keep the ecosystem successful!
+  </p>
   <ul>
     <li>💰 <a href="https://github.com/pardeike">pardeike - github sponsors - 20$</a></li>
     <li>💰 <a href="https://github.com/Elringus">elringus - github sponsors - 5$</a></li>
