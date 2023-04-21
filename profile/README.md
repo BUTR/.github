@@ -106,7 +106,7 @@
   <summary>Sponsoring:</summary>
   <ul>
     <li>💰 <a href="https://github.com/pardeike">pardeike - github sponsors - 20$</a></li>
-    <li>💰 <a href="https://github.com/Elringus">elringus - ko-fi - 5$</a></li>
+    <li>💰 <a href="https://github.com/Elringus">elringus - github sponsors - 5$</a></li>
     <li>💰 <a href="https://github.com/kzu"><s>kzu - github sponsors - 5$</s></a></li>
     <li>💰 <a href="https://github.com/0x0ade"><s>0x0ade - patreon - 10$</s></a></li>
     <li>💰 <a href="https://github.com/jbevain"><s>jbevain - github sponsors - 15$</s></a></li>
