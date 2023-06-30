@@ -6,6 +6,13 @@
 </details>
 
 <details open>
+  <summary>Game Reference Assemblies:</summary>
+  <ul>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.ReferenceAssemblies">Bannerlord.ReferenceAssemblies</a> - reference assemblies for every existing Game version.</li>
+  </ul>
+</details>
+
+<details open>
   <summary>Mods:</summary>
   <ul>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.Harmony">Harmony</a> - provides a centralized version of Harmony.</li>
