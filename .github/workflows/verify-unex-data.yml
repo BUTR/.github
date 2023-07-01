@@ -24,5 +24,5 @@ jobs:
   aragas-unex-verify-nexusmods:
     uses: BUTR/workflows/.github/workflows/verify-unex-nexusmods.yml@master
     secrets:
-      NEXUSMODSS_API_KEY: ${{ secrets.ARAGAS_NEXUSMOD_API_KEY }}
+      NEXUSMODS_API_KEY: ${{ secrets.ARAGAS_NEXUSMOD_API_KEY }}
       NEXUSMODS_COOKIES: ${{ secrets.ARAGAS_NEXUSMOD_COOKIES }}
