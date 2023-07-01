@@ -22,7 +22,7 @@ jobs:
       NEXUSMODS_COOKIE_SID_DEVELOP: ${{ secrets.ARAGAS_NEXUSMOD_COOKIE_SID_DEVELOP }}
 
   aragas-unex-verify-nexusmods:
-    uses: BUTR/workflows/.github/workflows/verifys-unex-nexusmods.yml@master
+    uses: BUTR/workflows/.github/workflows/verify-unex-nexusmods.yml@master
     secrets:
       NEXUSMODSS_API_KEY: ${{ secrets.ARAGAS_NEXUSMOD_API_KEY }}
       NEXUSMODS_COOKIES: ${{ secrets.ARAGAS_NEXUSMOD_COOKIES }}
