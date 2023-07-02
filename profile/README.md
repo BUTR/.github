@@ -36,7 +36,7 @@
 </details>
 
 <details>
-  <summary>Unsupported Mods:</summary>
+  <summary>Old Mods:</summary>
   <ul>
     <li>📁 <a href="https://github.com/BUTR/Bannerlord.SettlementIcons">Settlement Icons </a></li>
   </ul>
