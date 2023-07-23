@@ -70,7 +70,7 @@
       <li>🧰 <a href="https://github.com/BUTR/Bannerlord.ReferenceAssemblies">Bannerlord.ReferenceAssemblies</a> - generates reference assemblies starting from e1.1.0.</li>
       <li>🧰 <a href="https://github.com/BUTR/Bannerlord.XmlSchemas">Bannerlord.XmlSchemas</a> - XML Schemas for the community.</li>
       <li>🧰 <a href="https://github.com/BUTR/Bannerlord.SteamWorkshop">Bannerlord.SteamWorkshop</a> - tool that can login to Steam and upload content mods for Bannerlord.
-
+      <li>🧰 <a href="https://github.com/BUTR/Converter.MarkdownToBBCodeNM">Converter.MarkdownToBBCodeNM</a> - Converts Markdown and HTML into NexusMods BBCode flavor
 </li>
     </ul>
 </details>
