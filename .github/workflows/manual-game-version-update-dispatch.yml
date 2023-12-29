@@ -26,6 +26,6 @@ jobs:
             BUTR/Bannerlord.DiscordRichPresence
             BUTR/Bannerlord.PlayerSwitcher
             BUTR/Bannerlord.YellToInspire
-            BUTR/Bannerlord.ReferenceAssemblies.Diff
+            BUTR/Bannerlord.Game.Diff
           event_type: game_version_update
           client_payload: '{"github": ${{ toJson(github) }}}'
