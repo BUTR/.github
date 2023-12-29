@@ -129,7 +129,7 @@ We believe that the underlying libraries that are used for modding games deserve
     <li>📝 <a href="https://crowdin.com/profile/Aragas">Crowdin Translations</a></li>
     <li>📝 <a href="https://github.com/BUTR/documentation">BUTR Documentation</a></li>
     <li>📝 <a href="https://github.com/BUTR/Bannerlord.ReferenceAssemblies.Documentation">Game Public API Documentation</a></li>
-    <li>📝 <a href="https://butr.github.io/Bannerlord.ReferenceAssemblies.Diff">Game Stable/Beta Version Public API Diff</a></li>
+    <li>📝 <a href="https://butr.github.io/Bannerlord.Game.Diff">Game Stable/Beta Version Public API Diff</a></li>
     <li>📝 <a href="/profile/workflow-status.md">BUTR Workflow Status</a></li>
   </ul>
 </details>
