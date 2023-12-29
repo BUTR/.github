@@ -1,10 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace DotNetTools.Models
+namespace DotNetTools.Models;
+
+public class NewsForApp
 {
-    public class NewsForApp
-    {
-        [JsonPropertyName("appnews")]
-        public /*required*/ AppNews AppNews { get; init; }
-    }
+    [JsonPropertyName("appnews")]
+    public required AppNews AppNews { get; init; }
 }
