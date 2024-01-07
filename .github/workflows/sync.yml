@@ -73,7 +73,6 @@ jobs:
             ^SYNCED_
           REPOSITORIES: |
             ^BUTR
-            ^Aragas/Bannerlord.MBOptionScreen
           GITHUB_TOKEN: ${{secrets.REPO_ACCESS_TOKEN}}
         env:
           SYNCED_GAME_STABLE_VERSION: ${{fromJson(steps.branches.outputs.json).stable}}
