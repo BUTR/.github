@@ -114,7 +114,9 @@
   <p>
 We believe that the underlying libraries that are used for modding games deserve support and recognition. We started to sponsor those libraries on GitHub, Patreon and other services. Even if the money isn't enough to provide full development time for the authors, every penny counts. So we ask the modding community to do the same! If your mod uses a library that has some sponsorship note, do support them! Only a healthy foundation can keep the ecosystem successful!
   </p>
-  <img alt="" width="400" src="https://github.com/BUTR/.github/blob/master/sponsor.svg">
+  <a href="https://github.com/orgs/BUTR/sponsoring">
+    <img alt="" width="400" src="https://github.com/BUTR/.github/blob/master/sponsor.svg">
+  </a>
   <p>
     Non GitHub Sponsors:
   </p>
