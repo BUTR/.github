@@ -30,7 +30,7 @@ jobs:
           user: butr
           filename: sponsor.svg
           template: classic
-          base: header
+          base: ""
           config_timezone: Europe/London
           plugin_sponsorships: yes
           plugin_sponsorships_sections: amount, sponsorships
