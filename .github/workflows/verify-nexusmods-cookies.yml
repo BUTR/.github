@@ -1,4 +1,4 @@
-name: Verify UNEX Data
+name: Verify NexusMods Cookies
 
 on:
   schedule:
