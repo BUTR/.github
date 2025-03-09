@@ -43,7 +43,7 @@ jobs:
       - name: Run DotNetTools check-news
         id: date_checker
         run: >-
-           $date = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build -- check-news --appId 261550 --count 10;
+           $date = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build --no-launch-profile -- check-news --appId 261550 --count 10;
            echo "date=$date" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
@@ -54,7 +54,7 @@ jobs:
         id: branches
         run: >-
           if ('${{ steps.date_checker.outputs.date }}' -ne '0') {
-            $output_v = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build -- get-latest-version --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551 --steamDepotId 261552 --steamOS windows --steamOSArch 64;
+            $output_v = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build --no-launch-profile -- get-latest-version --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551 --steamDepotId 261552 --steamOS windows --steamOSArch 64;
             echo "json=$output_v" >> $env:GITHUB_OUTPUT
           } else {
             echo "json={}" >> $env:GITHUB_OUTPUT
