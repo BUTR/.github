@@ -56,6 +56,9 @@ jobs:
           if ('${{ steps.date_checker.outputs.date }}' -ne '0') {
             $output_v = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build -- get-latest-version --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551 --steamDepotId 261552 --steamOS windows --steamOSArch 64;
             echo "json=$output_v" >> $env:GITHUB_OUTPUT
+            echo "${{fromJson(steps.branches.outputs.json)}}"
+            echo "${{fromJson(steps.branches.outputs.json).stable}}"
+            echo "${{fromJson(steps.branches.outputs.json).beta}}"
           } else {
             echo "json={}" >> $env:GITHUB_OUTPUT
           }
