@@ -65,7 +65,7 @@ jobs:
 
       - name: Test
         run: >-
-          echo "${{fromJson(steps.branches.outputs.json)}}"
+          echo "${{steps.branches.outputs.json}}"
         shell: pwsh
         
       - name: Sync STABLE/BETA
