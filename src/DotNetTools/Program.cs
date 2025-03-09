@@ -136,7 +136,7 @@ public static class Program
                 DepotDownloader.ContentDownloader.ShutdownSteam3();
 
                 Console.SetOut(@out);
-                Console.WriteLine($"{{ stable: \"{stableVersion}\", beta: \"{betaVersion}\" }}");
+                Console.WriteLine($"{{ \"stable\": \"{stableVersion}\", \"beta\": \"{betaVersion}\" }}");
 
                 if (true)
                 {
