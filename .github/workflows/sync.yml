@@ -15,7 +15,7 @@ env:
 
 jobs:
   sync:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -23,12 +23,11 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Setup .NET 6, 7
+      - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            6.x.x
-            7.x.x
+            9.x.x
 
       - name: Setup BUTR GPR
         uses: actions/setup-dotnet@v4
@@ -45,7 +44,7 @@ jobs:
         id: date_checker
         run: >-
            $date = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build -- check-news --appId 261550 --count 10;
-           echo "::set-output name=date::$date";
+           echo "date=$date" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
         continue-on-error: true
@@ -54,19 +53,18 @@ jobs:
       - name: Run DotNetTools get-branches
         id: branches
         run: >-
-           if ($${{steps.date_checker.outputs.date != 0}}) {
-             $output_v = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build -- get-latest-version --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551 --steamDepotId 261552 --steamOS windows --steamOSArch 64;
-             echo "json="$output_v" >> $GITHUB_OUTPUT
-           }
-           if (!$${{steps.date_checker.outputs.date != 0}}) {
-             echo "json="{}" >> $GITHUB_OUTPUT
-           }
+          if ('${{ steps.date_checker.outputs.date }}' -ne '0') {
+            $output_v = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build -- get-latest-version --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551 --steamDepotId 261552 --steamOS windows --steamOSArch 64;
+            echo "json=$output_v" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "json={}" >> $env:GITHUB_OUTPUT
+          }
         env:
           GITHUB_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
         shell: pwsh
         
       - name: Sync STABLE/BETA
-        if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != '{}'}}
+        if: ${{steps.date_checker.outputs.date != '0' && steps.branches.outputs.json != '{}'}}
         uses: BUTR/secrets-sync-action@v1.7.1
         with:
           secrets: |
@@ -80,7 +78,7 @@ jobs:
 
       # Trigger Bannerlord.ReferenceAssemblies first so the NuGet packages are built
       - name: Dispatch
-        if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != '{}'}}
+        if: ${{steps.date_checker.outputs.date != '0' && steps.branches.outputs.json != '{}'}}
         uses: guilouro/multiple-repositories-dispatch@master
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
@@ -90,13 +88,13 @@ jobs:
           client_payload: '{"github": ${{ toJson(github) }}}'
 
       - name: Sleep for 15 minutes
-        if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != '{}'}}
+        if: ${{steps.date_checker.outputs.date != '0' && steps.branches.outputs.json != '{}'}}
         run: Start-Sleep -s 900
         shell: powershell
 
       # Trigger projects that depend on the NuGet packages
       - name: Dispatch
-        if: ${{steps.date_checker.outputs.date != 0 && steps.branches.outputs.json != '{}'}}
+        if: ${{steps.date_checker.outputs.date != '0' && steps.branches.outputs.json != '{}'}}
         uses: guilouro/multiple-repositories-dispatch@v1.0.2
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
