@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace DotNetTools;
 
 public static class Program
 {
+    private static FieldInfo Steam3Field { get; } = typeof(DepotDownloader.ContentDownloader).GetField("steam3", BindingFlags.Static | BindingFlags.NonPublic)!;
+
     public static async Task Main(string[] args)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -115,27 +118,25 @@ public static class Program
 
             try
             {
-                DepotDownloaderExt.Init();
-                DepotDownloaderExt.AccountSettingsStoreLoadFromFile("account.config");
-                DepotDownloaderExt.DepotDownloaderProgramInitializeSteam(options.SteamLogin, options.SteamPassword);
-                DepotDownloaderExt.ContentDownloadersteam3RequestAppInfo((uint) options.SteamAppId);
+                DepotDownloader.AccountSettingsStore.LoadFromFile("account.config");
+                DepotDownloader.ContentDownloader.InitializeSteam3(options.SteamLogin, options.SteamPassword);
 
                 var tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName().Replace(".", string.Empty));
                 Directory.CreateDirectory(tempFolder);
-                DepotDownloaderExt.ContentDownloaderConfigSetMaxDownloads(4);
-                DepotDownloaderExt.ContentDownloaderConfigSetInstallDirectory(tempFolder);
+                DepotDownloader.ContentDownloader.Config.MaxDownloads = 4;
+                DepotDownloader.ContentDownloader.Config.InstallDirectory = tempFolder;
 
                 var stableVersion = await GetBranchVersion("public", tempFolder, options, CancellationToken.None);
                 var betaVersion = GetBetaBranch(options, CancellationToken.None) is { } betaBranch
                     ? await GetBranchVersion(betaBranch, tempFolder, options, CancellationToken.None)
-                    : null;
+                    : stableVersion;
 
                 Directory.Delete(tempFolder, true);
 
-                DepotDownloaderExt.ContentDownloaderShutdownSteam3();
+                DepotDownloader.ContentDownloader.ShutdownSteam3();
 
                 Console.SetOut(@out);
-                Console.WriteLine(betaVersion is null ? $"{{ stable: \"{stableVersion}\" }}" : $"{{ stable: \"{stableVersion}\", beta: \"{betaVersion}\" }}");
+                Console.WriteLine($"{{ stable: \"{stableVersion}\", beta: \"{betaVersion}\" }}");
 
                 if (true)
                 {
@@ -201,7 +202,7 @@ public static class Program
 
     private static string? GetBetaBranch(SteamOptions options, CancellationToken ct)
     {
-        var depots = DepotDownloaderExt.ContentDownloaderGetSteam3AppSection((uint) options.SteamAppId);
+        var depots = DepotDownloader.ContentDownloader.GetSteam3AppSection((uint) options.SteamAppId, SteamKit2.EAppInfoSection.Depots);
         var branches = depots["branches"];
         return branches.Children
             .Where(x => x["pwdrequired"].Value != "1" && x["lcsrequired"].Value != "1")
@@ -212,15 +213,18 @@ public static class Program
 
     private static async Task<string?> GetBranchVersion(string branchName, string tempFolder, SteamOptions options, CancellationToken ct)
     {
-        DepotDownloaderExt.ContentDownloaderConfigSetUsingFileList(true);
-        var filesToDownload = DepotDownloaderExt.ContentDownloaderConfigGetFilesToDownload();
+        DepotDownloader.ContentDownloader.Config.UsingFileList = true;
+        DepotDownloader.ContentDownloader.Config.FilesToDownload = [];
+        DepotDownloader.ContentDownloader.Config.FilesToDownloadRegex = [];
+        
+        var filesToDownload = DepotDownloader.ContentDownloader.Config.FilesToDownload;
         filesToDownload.Clear();
         filesToDownload.Add("bin\\Win64_Shipping_Client\\Version.xml");
         filesToDownload.Add("bin/Win64_Shipping_Client/Version.xml");
-        var filesToDownloadRegex = DepotDownloaderExt.ContentDownloaderConfigGetFilesToDownloadRegex();
+        var filesToDownloadRegex = DepotDownloader.ContentDownloader.Config.FilesToDownloadRegex;
         filesToDownloadRegex.Clear();
 
-        await DepotDownloaderExt.ContentDownloaderDownloadAppAsync(
+        await DepotDownloader.ContentDownloader.DownloadAppAsync(
             (uint) options.SteamAppId,
             options.SteamDepotId.Select(x => ((uint) x, ulong.MaxValue)).ToList(),
             branchName,
