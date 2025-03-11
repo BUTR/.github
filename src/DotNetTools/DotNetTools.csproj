@@ -26,6 +26,12 @@
     <PackageReference Include="protobuf-net" Version="3.2.46" />
     <PackageReference Include="QRCoder" Version="1.6.0" />
     <PackageReference Include="SteamKit2" Version="3.0.2" />
+    <Compile Include="..\DepotDownloader\DepotDownloader\*.cs" Exclude="..\DepotDownloader\DepotDownloader\Program.cs">
+      <Link>DepotDownloader\*.cs</Link>
+    </Compile>
+    <AdditionalFiles Include="..\DepotDownloader\DepotDownloader\NativeMethods.txt">
+      <Link>DepotDownloader\NativeMethods.txt</Link>
+    </AdditionalFiles>
   </ItemGroup>
 
   <ItemGroup>
@@ -33,12 +39,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\DepotDownloader\DepotDownloader\*.cs" Exclude="..\DepotDownloader\DepotDownloader\Program.cs">
-      <Link>DepotDownloader\*.cs</Link>
-    </Compile>
-    <AdditionalFiles Include="..\DepotDownloader\DepotDownloader\NativeMethods.txt">
-      <Link>DepotDownloader\NativeMethods.txt</Link>
-    </AdditionalFiles>
   </ItemGroup>
 
 </Project>

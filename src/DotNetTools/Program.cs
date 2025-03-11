@@ -27,8 +27,6 @@ namespace DotNetTools;
 
 public static class Program
 {
-    private static FieldInfo Steam3Field { get; } = typeof(DepotDownloader.ContentDownloader).GetField("steam3", BindingFlags.Static | BindingFlags.NonPublic)!;
-
     public static async Task Main(string[] args)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -233,7 +231,7 @@ public static class Program
             null!,
             false,
             false).ConfigureAwait(false);
-        var file = Path.Combine(tempFolder, "bin\\Win64_Shipping_Client\\Version.xml");
+        var file = Path.Combine(tempFolder, "bin", "Win64_Shipping_Client", "Version.xml");
         var content = await File.ReadAllTextAsync(file, ct);
         var toSearch1 = "<Singleplayer Value=\"";
         var idx1 = content.IndexOf(toSearch1, StringComparison.Ordinal);
