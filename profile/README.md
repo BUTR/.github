@@ -91,6 +91,7 @@
     <ul>
       <li>🌐 <a href="https://github.com/BUTR/BUTR.CrashReportServer">BUTR.CrashReportServer</a></li>
       <li>🌐 <a href="https://github.com/BUTR/BUTR.ModListServer">BUTR.ModListServer</a></li>
+      <li>🌐 <a href="https://github.com/BUTR/BUTR.NexusModsStats">BUTR.NexusModsStats</a></li>
       <li>🌎 <a href="https://github.com/Aragas/NexusMods.Monitor">NexusMods.Monitor</a></li>
     </ul>
 </details>
