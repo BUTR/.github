@@ -1,3 +1,5 @@
+[![Discord](https://img.shields.io/discord/1018549720777490681?label=Discord)](https://discord.gg/unBY2twS3V)
+
 <details open>
   <summary>Module Template:</summary>
   <ul>
