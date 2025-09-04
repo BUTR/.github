@@ -24,13 +24,13 @@ jobs:
           fetch-depth: 0
 
       - name: Setup .NET 9
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             9.x.x
 
       - name: Setup BUTR GPR
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           source-url: https://nuget.pkg.github.com/BUTR/index.json
         env:
