@@ -81,13 +81,14 @@ public static class Program
                 }
 
                 var lastPatchNotes = response?.AppNews.NewsItems.FirstOrDefault(n => n.Tags?.Any(t => t is "patchnotes" or "mod_reviewed" or "mod_require_rereview") == true);
-                await github.Repository.Actions.Variables.Update("BUTR", ".github", "SC_DATE_OF_LAST_POST", new UpdateRepositoryVariable { Value = lastPatchNotes?.Date.ToString() ?? "0"});
-                    
+
                 Console.SetOut(@out);
                 if (lastPatchNotes is null || lastPatchNotes.Date == dateOfLastPost)
                     Console.WriteLine(0);
                 else
                     Console.WriteLine(lastPatchNotes.Date);
+
+                await github.Repository.Actions.Variables.Update("BUTR", ".github", "SC_DATE_OF_LAST_POST", new UpdateRepositoryVariable { Value = lastPatchNotes?.Date.ToString() ?? "0"});
             }
             catch (Exception e)
             {
