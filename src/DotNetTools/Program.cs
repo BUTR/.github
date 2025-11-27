@@ -51,23 +51,20 @@ public static class Program
         {
             var host = context.GetHost();
 
-            var @out = Console.Out;
-            Console.SetOut(TextWriter.Null);
-
             try
             {
                 var github = new GitHubClient(new ProductHeaderValue("BUTR"))
                 {
                     Credentials = new Credentials(Environment.GetEnvironmentVariable("GITHUB_TOKEN"))
                 };
-                    
+
                 var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
                 var client = httpClientFactory.CreateClient();
 
                 var options = host.Services.GetRequiredService<IOptions<CheckNewsOptions>>().Value;
 
                 var url = $"https://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid={options.AppId}&count={options.Count}&maxlength=1&format=json";
-                var response =  await client.GetFromJsonAsync<NewsForApp>(url);
+                var response = await client.GetFromJsonAsync<NewsForApp>(url);
 
                 long dateOfLastPost;
                 try
@@ -75,25 +72,35 @@ public static class Program
                     var dateOfLastPostVariable = await github.Repository.Actions.Variables.Get("BUTR", ".github", "SC_DATE_OF_LAST_POST");
                     dateOfLastPost = long.TryParse(dateOfLastPostVariable.Value, out var val) ? val : 0;
                 }
-                catch (InvalidOperationException)
+                catch (Exception)
                 {
                     dateOfLastPost = 0;
                 }
 
                 var lastPatchNotes = response?.AppNews.NewsItems.FirstOrDefault(n => n.Tags?.Any(t => t is "patchnotes" or "mod_reviewed" or "mod_require_rereview") == true);
 
-                Console.SetOut(@out);
-                if (lastPatchNotes is null || lastPatchNotes.Date == dateOfLastPost)
-                    Console.WriteLine(0);
-                else
-                    Console.WriteLine(lastPatchNotes.Date);
+                var date = lastPatchNotes is null || lastPatchNotes.Date == dateOfLastPost ? 0 : lastPatchNotes.Date;
 
-                await github.Repository.Actions.Variables.Update("BUTR", ".github", "SC_DATE_OF_LAST_POST", new UpdateRepositoryVariable { Value = lastPatchNotes?.Date.ToString() ?? "0"});
+                // Write directly to GITHUB_OUTPUT
+                var githubOutput = Environment.GetEnvironmentVariable("GITHUB_OUTPUT");
+                if (!string.IsNullOrEmpty(githubOutput))
+                {
+                    await File.AppendAllTextAsync(githubOutput, $"date={date}\n");
+                }
+                else
+                {
+                    Console.WriteLine(date);
+                }
+
+                if (date != 0)
+                {
+                    await github.Repository.Actions.Variables.Update("BUTR", ".github", "SC_DATE_OF_LAST_POST", new UpdateRepositoryVariable(lastPatchNotes!.Date.ToString()));
+                }
             }
             catch (Exception e)
             {
-                Console.SetOut(@out);
-                Console.WriteLine(e);
+                Console.Error.WriteLine(e);
+                context.ExitCode = 1;
             }
 
             var applicationLifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();

@@ -42,13 +42,10 @@ jobs:
 
       - name: Run DotNetTools check-news
         id: date_checker
-        run: >-
-           $date = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build --no-launch-profile -- check-news --appId 261550 --count 10;
-           echo "date=$date" >> $GITHUB_OUTPUT
+        run: dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build --no-launch-profile -- check-news --appId 261550 --count 10
         env:
           GITHUB_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
         continue-on-error: true
-        shell: pwsh
         
       - name: Run DotNetTools get-branches
         id: branches
