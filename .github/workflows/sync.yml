@@ -92,7 +92,7 @@ jobs:
       - name: Sleep for 15 minutes
         if: ${{steps.date_checker.outputs.date != '0' && steps.branches.outputs.json != '{}'}}
         run: Start-Sleep -s 900
-        shell: powershell
+        shell: pwsh
 
       # Trigger projects that depend on the NuGet packages
       - name: Dispatch
