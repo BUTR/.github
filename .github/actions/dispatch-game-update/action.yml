@@ -1,0 +1,39 @@
+name: 'Dispatch Game Update'
+description: 'Dispatches game_version_update event to configured repositories'
+
+inputs:
+  token:
+    description: 'GitHub token with repo access'
+    required: true
+  config-path:
+    description: 'Path to the JSON config file with repository list'
+    required: false
+    default: '.github/config/game-update-repos.json'
+  event-type:
+    description: 'The event type to dispatch'
+    required: false
+    default: 'game_version_update'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Dispatch to repositories
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        $configPath = "${{ inputs.config-path }}"
+        $eventType = "${{ inputs.event-type }}"
+
+        if (-not (Test-Path $configPath)) {
+          Write-Error "Config file not found: $configPath"
+          exit 1
+        }
+
+        $config = Get-Content $configPath | ConvertFrom-Json
+        $repos = $config.repositories
+
+        foreach ($repo in $repos) {
+          Write-Host "Dispatching $eventType to $repo"
+          gh api repos/$repo/dispatches -f event_type=$eventType
+        }

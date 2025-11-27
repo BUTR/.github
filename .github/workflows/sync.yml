@@ -5,6 +5,10 @@ on:
     - cron: "0 */3 * * *"
   workflow_dispatch:
 
+concurrency:
+  group: sync-workflow
+  cancel-in-progress: false
+
 env:
   # Disable the .NET logo in the console output.
   DOTNET_NOLOGO: true
@@ -16,12 +20,10 @@ env:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
 
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
@@ -40,14 +42,28 @@ jobs:
         run: dotnet build src/DotNetTools/DotNetTools.csproj
         shell: pwsh
 
-      - name: Run DotNetTools check-news
+      - name: Check Steam News for Patch Notes
         id: date_checker
-        run: dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build --no-launch-profile -- check-news --appId 261550 --count 10
+        run: |
+          $response = Invoke-RestMethod -Uri "https://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid=261550&count=10&format=json"
+          $tags = @("patchnotes", "mod_reviewed", "mod_require_rereview")
+          $item = $response.appnews.newsitems | Where-Object { $_.tags -and ($_.tags | Where-Object { $_ -in $tags }) } | Select-Object -First 1
+
+          $lastPost = gh variable get SC_DATE_OF_LAST_POST --repo BUTR/.github 2>$null
+          if (-not $lastPost) { $lastPost = "0" }
+
+          $date = if ($item -and $item.date -ne [int]$lastPost) { $item.date } else { 0 }
+          echo "date=$date" >> $env:GITHUB_OUTPUT
+
+          if ($date -ne 0) {
+            gh variable set SC_DATE_OF_LAST_POST --repo BUTR/.github --body $item.date
+          }
+        shell: pwsh
         env:
-          GITHUB_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
+          GH_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
         continue-on-error: true
         
-      - name: Run DotNetTools get-branches
+      - name: Run DotNetTools get-latest-version
         id: branches
         run: >-
           if ('${{ steps.date_checker.outputs.date }}' -ne '0') {
@@ -60,13 +76,33 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
         shell: pwsh
 
-      - name: Test
-        run: >-
-          echo "${{steps.branches.outputs.json}}"
+      - name: Set should_sync flag
+        id: check
+        run: |
+          if ('${{ steps.date_checker.outputs.date }}' -ne '0' -and '${{ steps.branches.outputs.json }}' -ne '{}') {
+            echo "should_sync=true" >> $env:GITHUB_OUTPUT
+          }
         shell: pwsh
-        
+
+      - name: Update GitHub Variables
+        if: steps.check.outputs.should_sync == 'true'
+        run: |
+          $stable = '${{ fromJson(steps.branches.outputs.json).stable }}'
+          $beta = '${{ fromJson(steps.branches.outputs.json).beta }}'
+
+          # Update BUTR org variables
+          gh variable set GAME_VERSION_STABLE --org BUTR --body $stable --visibility all
+          gh variable set GAME_VERSION_BETA --org BUTR --body $beta --visibility all
+
+          # Update Aragas/Bannerlord.MBOptionScreen repo variables
+          gh variable set GAME_VERSION_STABLE --repo Aragas/Bannerlord.MBOptionScreen --body $stable
+          gh variable set GAME_VERSION_BETA --repo Aragas/Bannerlord.MBOptionScreen --body $beta
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
+
       - name: Sync STABLE/BETA
-        if: ${{steps.date_checker.outputs.date != '0' && steps.branches.outputs.json != '{}'}}
+        if: steps.check.outputs.should_sync == 'true'
         uses: BUTR/secrets-sync-action@v1.7.1
         with:
           secrets: |
@@ -78,42 +114,12 @@ jobs:
           SYNCED_GAME_STABLE_VERSION: ${{fromJson(steps.branches.outputs.json).stable}}
           SYNCED_GAME_BETA_VERSION: ${{fromJson(steps.branches.outputs.json).beta}}
 
-      # Trigger Bannerlord.ReferenceAssemblies first so the NuGet packages are built
-      - name: Dispatch
-        if: ${{steps.date_checker.outputs.date != '0' && steps.branches.outputs.json != '{}'}}
-        uses: guilouro/multiple-repositories-dispatch@master
-        with:
-          repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
-          repositories: |
-            BUTR/Bannerlord.ReferenceAssemblies
-          event_type: game_version_update
-          client_payload: '{"github": ${{ toJson(github) }}}'
-
-      - name: Sleep for 15 minutes
-        if: ${{steps.date_checker.outputs.date != '0' && steps.branches.outputs.json != '{}'}}
-        run: Start-Sleep -s 900
-        shell: pwsh
-
-      # Trigger projects that depend on the NuGet packages
-      - name: Dispatch
-        if: ${{steps.date_checker.outputs.date != '0' && steps.branches.outputs.json != '{}'}}
+      - name: Dispatch Bannerlord.ReferenceAssemblies
+        if: steps.check.outputs.should_sync == 'true'
         uses: guilouro/multiple-repositories-dispatch@v1.0.2
         with:
           repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
           repositories: |
-            BUTR/Bannerlord.ReferenceAssemblies.Documentation
-            BUTR/Bannerlord.Harmony
-            BUTR/Bannerlord.UIExtenderEx
-            BUTR/Bannerlord.ButterLib
-            Aragas/Bannerlord.MBOptionScreen
-            BUTR/Bannerlord.BLSE
-            BUTR/Bannerlord.BUTRLoader
-            BUTR/Bannerlord.BUTR.Shared
-            BUTR/Bannerlord.Python
-            BUTR/Bannerlord.PHP
-            BUTR/Bannerlord.DiscordRichPresence
-            BUTR/Bannerlord.PlayerSwitcher
-            BUTR/Bannerlord.YellToInspire
-            BUTR/Bannerlord.Game.Diff
+            BUTR/Bannerlord.ReferenceAssemblies
           event_type: game_version_update
           client_payload: '{"github": ${{ toJson(github) }}}'

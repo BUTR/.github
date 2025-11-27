@@ -2,7 +2,3 @@
 	path = src/DepotDownloader
 	url = https://github.com/SteamRE/DepotDownloader
 	branch = master
-[submodule "src/octokit.net"]
-	path = src/octokit.net
-	url = https://github.com/aragas/octokit.net
-	branch = variables

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 using System;
 using System.Collections.Generic;
@@ -12,16 +11,11 @@ using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bannerlord.ModuleManager;
-using DotNetTools.Models;
 using DotNetTools.Options;
-using Octokit;
 
 namespace DotNetTools;
 
@@ -42,72 +36,6 @@ public static class Program
 
     private static CommandLineBuilder BuildCommandLine()
     {
-        var checkNews = new Command("check-news")
-        {
-            new Option<string>("--appId"),
-            new Option<string>("--count")
-        };
-        checkNews.SetHandler(async context =>
-        {
-            var host = context.GetHost();
-
-            try
-            {
-                var github = new GitHubClient(new ProductHeaderValue("BUTR"))
-                {
-                    Credentials = new Credentials(Environment.GetEnvironmentVariable("GITHUB_TOKEN"))
-                };
-
-                var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
-                var client = httpClientFactory.CreateClient();
-
-                var options = host.Services.GetRequiredService<IOptions<CheckNewsOptions>>().Value;
-
-                var url = $"https://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid={options.AppId}&count={options.Count}&maxlength=1&format=json";
-                var response = await client.GetFromJsonAsync<NewsForApp>(url);
-
-                long dateOfLastPost;
-                try
-                {
-                    var dateOfLastPostVariable = await github.Repository.Actions.Variables.Get("BUTR", ".github", "SC_DATE_OF_LAST_POST");
-                    dateOfLastPost = long.TryParse(dateOfLastPostVariable.Value, out var val) ? val : 0;
-                }
-                catch (Exception)
-                {
-                    dateOfLastPost = 0;
-                }
-
-                var lastPatchNotes = response?.AppNews.NewsItems.FirstOrDefault(n => n.Tags?.Any(t => t is "patchnotes" or "mod_reviewed" or "mod_require_rereview") == true);
-
-                var date = lastPatchNotes is null || lastPatchNotes.Date == dateOfLastPost ? 0 : lastPatchNotes.Date;
-
-                // Write directly to GITHUB_OUTPUT
-                var githubOutput = Environment.GetEnvironmentVariable("GITHUB_OUTPUT");
-                if (!string.IsNullOrEmpty(githubOutput))
-                {
-                    await File.AppendAllTextAsync(githubOutput, $"date={date}\n");
-                }
-                else
-                {
-                    Console.WriteLine(date);
-                }
-
-                if (date != 0)
-                {
-                    await github.Repository.Actions.Variables.Update("BUTR", ".github", "SC_DATE_OF_LAST_POST", new UpdateRepositoryVariable(lastPatchNotes!.Date.ToString()));
-                }
-            }
-            catch (Exception e)
-            {
-                Console.Error.WriteLine(e);
-                context.ExitCode = 1;
-            }
-
-            var applicationLifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
-            applicationLifetime.StopApplication();
-        });
-
-
         var getBranches = new Command("get-latest-version")
         {
             new Option<string>("--steamLogin"),
@@ -143,18 +71,6 @@ public static class Program
 
                 Console.SetOut(@out);
                 Console.WriteLine($"{{ \"stable\": \"{stableVersion}\", \"beta\": \"{betaVersion}\" }}");
-
-                if (true)
-                {
-                    var github = new GitHubClient(new ProductHeaderValue("BUTR"))
-                    {
-                        Credentials = new Credentials(Environment.GetEnvironmentVariable("GITHUB_TOKEN"))
-                    };
-                    await github.Organization.Actions.Variables.Update("BUTR", "GAME_VERSION_STABLE", new UpdateOrganizationVariable(stableVersion, "all", Array.Empty<long>()));
-                    await github.Organization.Actions.Variables.Update("BUTR", "GAME_VERSION_BETA", new UpdateOrganizationVariable(betaVersion, "all", Array.Empty<long>()));
-                    await github.Repository.Actions.Variables.Update("Aragas", "Bannerlord.MBOptionScreen", "GAME_VERSION_STABLE", new UpdateRepositoryVariable(stableVersion));
-                    await github.Repository.Actions.Variables.Update("Aragas", "Bannerlord.MBOptionScreen", "GAME_VERSION_BETA", new UpdateRepositoryVariable(betaVersion));
-                }
             }
             catch (Exception e)
             {
@@ -166,7 +82,7 @@ public static class Program
             applicationLifetime.StopApplication();
         });
 
-        var root = new RootCommand { checkNews, getBranches };
+        var root = new RootCommand { getBranches };
         return new CommandLineBuilder(root);
     }
 

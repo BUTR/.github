@@ -36,10 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\octokit.net\Octokit\Octokit.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
   </ItemGroup>
 
 </Project>
