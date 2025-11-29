@@ -5,10 +5,6 @@ inputs:
   token:
     description: 'GitHub token with repo access'
     required: true
-  config-path:
-    description: 'Path to the JSON config file with repository list'
-    required: false
-    default: '.github/config/game-update-repos.json'
   event-type:
     description: 'The event type to dispatch'
     required: false
@@ -22,18 +18,24 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.token }}
       run: |
-        $configPath = "${{ inputs.config-path }}"
-        $eventType = "${{ inputs.event-type }}"
-
-        if (-not (Test-Path $configPath)) {
-          Write-Error "Config file not found: $configPath"
-          exit 1
-        }
-
-        $config = Get-Content $configPath | ConvertFrom-Json
-        $repos = $config.repositories
+        $repos = @(
+          "BUTR/Bannerlord.ReferenceAssemblies.Documentation",
+          "BUTR/Bannerlord.Harmony",
+          "BUTR/Bannerlord.UIExtenderEx",
+          "BUTR/Bannerlord.ButterLib",
+          "Aragas/Bannerlord.MBOptionScreen",
+          "BUTR/Bannerlord.BLSE",
+          "BUTR/Bannerlord.BUTRLoader",
+          "BUTR/Bannerlord.BUTR.Shared",
+          "BUTR/Bannerlord.Python",
+          "BUTR/Bannerlord.PHP",
+          "BUTR/Bannerlord.DiscordRichPresence",
+          "BUTR/Bannerlord.PlayerSwitcher",
+          "BUTR/Bannerlord.YellToInspire",
+          "BUTR/Bannerlord.Game.Diff"
+        )
 
         foreach ($repo in $repos) {
-          Write-Host "Dispatching $eventType to $repo"
-          gh api repos/$repo/dispatches -f event_type=$eventType
+          Write-Host "Dispatching ${{ inputs.event-type }} to $repo"
+          gh api repos/$repo/dispatches -f event_type=${{ inputs.event-type }}
         }
