@@ -84,11 +84,20 @@ jobs:
           }
         shell: pwsh
 
+      - name: Parse versions
+        if: steps.check.outputs.should_sync == 'true'
+        id: versions
+        run: |
+          $json = '${{ steps.branches.outputs.json }}' | ConvertFrom-Json
+          echo "stable=$($json.stable)" >> $env:GITHUB_OUTPUT
+          echo "beta=$($json.beta)" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
       - name: Update GitHub Variables
         if: steps.check.outputs.should_sync == 'true'
         run: |
-          $stable = '${{ fromJson(steps.branches.outputs.json).stable }}'
-          $beta = '${{ fromJson(steps.branches.outputs.json).beta }}'
+          $stable = '${{ steps.versions.outputs.stable }}'
+          $beta = '${{ steps.versions.outputs.beta }}'
 
           # Update BUTR org variables
           gh variable set GAME_VERSION_STABLE --org BUTR --body $stable --visibility all
@@ -111,8 +120,8 @@ jobs:
             ^BUTR
           github_token: ${{secrets.REPO_ACCESS_TOKEN}}
         env:
-          SYNCED_GAME_STABLE_VERSION: ${{fromJson(steps.branches.outputs.json).stable}}
-          SYNCED_GAME_BETA_VERSION: ${{fromJson(steps.branches.outputs.json).beta}}
+          SYNCED_GAME_STABLE_VERSION: ${{ steps.versions.outputs.stable }}
+          SYNCED_GAME_BETA_VERSION: ${{ steps.versions.outputs.beta }}
 
       - name: Dispatch Bannerlord.ReferenceAssemblies
         if: steps.check.outputs.should_sync == 'true'
