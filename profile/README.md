@@ -32,8 +32,9 @@
 <details open>
   <summary>Gameplay Mods:</summary>
   <ul>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.PlayerSwitcher">Player Switcher</a></li>
-    <li>📁 <a href="https://github.com/BUTR/Bannerlord.YellToInspire">Yell To Inspire</a></li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.PlayerSwitcher">Player Switcher</a> - Allows you to control almost any hero from any clan in the world!</li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.YellToInspire">Yell To Inspire</a> - Gives the ability to yell on the battlefield. Affects morale of allies and enemies.</li>
+    <li>📁 <a href="https://github.com/BUTR/Bannerlord.GABS">AI Game Agent Server</a> - Let AI agents play Mount & Blade II: Bannerlord.</li>
   </ul>
 </details>
 
