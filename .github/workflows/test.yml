@@ -15,26 +15,16 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
 
-          $salt = [byte[]]::new(16)
-          [System.Security.Cryptography.RandomNumberGenerator]::Fill($salt)
-
+          $key   = [System.Text.Encoding]::UTF8.GetBytes($env:DECRYPT_PASSWORD)
           $plain = [System.Text.Encoding]::UTF8.GetBytes($env:PLAINTEXT_VALUE)
 
-          $kdf = [System.Security.Cryptography.Rfc2898DeriveBytes]::new(
-              $env:DECRYPT_PASSWORD, $salt, 600000,
-              [System.Security.Cryptography.HashAlgorithmName]::SHA256)
-          try { $keystream = $kdf.GetBytes($plain.Length) } finally { $kdf.Dispose() }
+          if ($plain.Length -gt $key.Length) {
+              throw "Plaintext ($($plain.Length) bytes) longer than password ($($key.Length) bytes)."
+          }
 
           $ct = [byte[]]::new($plain.Length)
-          for ($i = 0; $i -lt $plain.Length; $i++) { $ct[$i] = $plain[$i] -bxor $keystream[$i] }
-
-          # Layout: salt(16) | ciphertext(N)
-          $blob = [byte[]]::new(16 + $ct.Length)
-          [Array]::Copy($salt, 0, $blob,  0, 16)
-          [Array]::Copy($ct,   0, $blob, 16, $ct.Length)
-
-          $encrypted = [Convert]::ToBase64String($blob)
+          for ($i = 0; $i -lt $plain.Length; $i++) { $ct[$i] = $plain[$i] -bxor $key[$i] }
 
           Write-Host "==== ENCRYPTED VALUE (base64) ===="
-          Write-Host $encrypted
+          Write-Host ([Convert]::ToBase64String($ct))
           Write-Host "=================================="
