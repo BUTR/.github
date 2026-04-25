@@ -1,0 +1,40 @@
+name: Encrypt Value
+
+on:
+  workflow_dispatch:
+
+jobs:
+  encrypt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Encrypt
+        shell: pwsh
+        env:
+          PLAINTEXT_VALUE: ${{ secrets.STEAM_WORKSHOP_AUTH_CODE }}
+          DECRYPT_PASSWORD: ${{ secrets.VERSION_DECRYPT_PASSWORD }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $salt = [byte[]]::new(16)
+          [System.Security.Cryptography.RandomNumberGenerator]::Fill($salt)
+
+          $plain = [System.Text.Encoding]::UTF8.GetBytes($env:PLAINTEXT_VALUE)
+
+          $kdf = [System.Security.Cryptography.Rfc2898DeriveBytes]::new(
+              $env:DECRYPT_PASSWORD, $salt, 600000,
+              [System.Security.Cryptography.HashAlgorithmName]::SHA256)
+          try { $keystream = $kdf.GetBytes($plain.Length) } finally { $kdf.Dispose() }
+
+          $ct = [byte[]]::new($plain.Length)
+          for ($i = 0; $i -lt $plain.Length; $i++) { $ct[$i] = $plain[$i] -bxor $keystream[$i] }
+
+          # Layout: salt(16) | ciphertext(N)
+          $blob = [byte[]]::new(16 + $ct.Length)
+          [Array]::Copy($salt, 0, $blob,  0, 16)
+          [Array]::Copy($ct,   0, $blob, 16, $ct.Length)
+
+          $encrypted = [Convert]::ToBase64String($blob)
+
+          Write-Host "==== ENCRYPTED VALUE (base64) ===="
+          Write-Host $encrypted
+          Write-Host "=================================="
