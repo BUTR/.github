@@ -19,6 +19,7 @@ runs:
         GH_TOKEN: ${{ inputs.token }}
       run: |
         $repos = @(
+          "BUTR/.github",
           "BUTR/Bannerlord.ReferenceAssemblies.Documentation",
           "BUTR/Bannerlord.Harmony",
           "BUTR/Bannerlord.UIExtenderEx",
