@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BUTR Modding Infrastructure</title>
+<meta name="description" content="A community team building the loader, libraries, mods and services for Mount &amp; Blade II: Bannerlord.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Palette ported verbatim from BUTR.Site.NexusMods (src/styles/tokens.css, badges.css).
+   That app drives dark mode with a .butr-dark class; here the same values are driven by
+   prefers-color-scheme plus an explicit data-theme override. */
+:root{
+  --ground:#f4f3ef;        /* --bg  */
+  --surface:#ffffff;       /* --sf  */
+  --sunken:#faf8f0;        /* --hl  */
+  --ink:#1e2126;           /* --tx1 */
+  --body:#3d4046;          /* --tx2 */
+  --muted:#5c6066;         /* --tx3 */
+  --faint:#6f7379;         /* --tx4 */
+  --line:#e2dfd6;          /* --bd1 */
+  --line-soft:#efede6;     /* --bd2 */
+
+  --accent:#8a7534;        /* --gold-tx        links and accent text */
+  --accent-hover:#6f5e2a;  /* --gold-tx-hover  */
+  --accent-line:#b0a069;   /* --gold           borders, rules */
+  --accent-soft:#f4f1e4;   /* --goldbg         chip fill */
+  --accent-bd:#e2d9b8;     /* --goldbd1        chip border */
+
+  --warn-bg:#fef3c7; --warn-fg:#b45309;   /* --b-cannotrepro-* */
+
+  /* constant dark surface in both themes, mirroring the app sidebar */
+  --side-bg:#17191c; --side-tx:#b8bcc2; --side-sub:#6b6f76;
+  --side-heading:#ffffff; --side-active:#d9c98d; --side-divider:#2a2d32;
+
+  --shadow:0 1px 2px rgba(0,0,0,.08);     /* --sh-seg */
+  --display:"IBM Plex Sans",system-ui,sans-serif;
+  --sans:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --measure:66ch; --radius:10px;          /* --r-card */
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#1b1d21; --surface:#24272c; --sunken:#2b2d31;
+    --ink:#e6e9ed; --body:#c6cbd2; --muted:#a7adb5; --faint:#9298a1;
+    --line:#3a3d43; --line-soft:#32353b;
+    --accent:#d9c98d; --accent-hover:#e8dcae; --accent-line:#b0a069;
+    --accent-soft:#3a341f; --accent-bd:#4a4432;
+    --warn-bg:#3d2f16; --warn-fg:#e0b062;
+    --shadow:0 1px 2px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#1b1d21; --surface:#24272c; --sunken:#2b2d31;
+  --ink:#e6e9ed; --body:#c6cbd2; --muted:#a7adb5; --faint:#9298a1;
+  --line:#3a3d43; --line-soft:#32353b;
+  --accent:#d9c98d; --accent-hover:#e8dcae; --accent-line:#b0a069;
+  --accent-soft:#3a341f; --accent-bd:#4a4432;
+  --warn-bg:#3d2f16; --warn-fg:#e0b062;
+  --shadow:0 1px 2px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--body);
+  font-family:var(--sans); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin-inline:auto; padding-inline:24px}
+a{color:var(--accent); text-decoration-thickness:1px; text-underline-offset:2px}
+a:hover{color:var(--accent-hover)}
+a:focus-visible{outline:2px solid var(--accent-line); outline-offset:3px; border-radius:3px}
+h1,h2,h3{font-family:var(--display); color:var(--ink); text-wrap:balance; margin:0; line-height:1.2}
+.mono{font-family:var(--mono); font-size:.86em; letter-spacing:-.01em}
+
+/* ---- masthead: constant dark, matching the app sidebar ---- */
+.masthead{background:var(--side-bg); border-bottom:1px solid var(--side-divider)}
+.masthead .wrap{display:flex; align-items:center; justify-content:space-between; gap:16px; padding-block:14px; flex-wrap:wrap}
+.wordmark{display:flex; align-items:center; gap:10px; text-decoration:none}
+.wordmark span{font-size:12.5px; color:var(--side-sub); letter-spacing:.04em}
+.masthead nav{display:flex; gap:20px; font-size:14.5px; flex-wrap:wrap}
+.masthead nav a{color:var(--side-tx); text-decoration:none; display:inline-flex; align-items:center}
+.masthead nav a:hover{color:var(--side-active); text-decoration:underline}
+.masthead nav a:focus-visible,.wordmark:focus-visible{outline:2px solid var(--side-active); outline-offset:3px; border-radius:3px}
+
+/* ---- hero ---- */
+.hero{padding-block:56px 44px; border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.11em; text-transform:uppercase; color:var(--accent); margin:0 0 18px}
+.sr-only{position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
+.hero .lede{max-width:var(--measure); margin:0; font-size:21px; color:var(--ink); line-height:1.5}
+.hero .lede + .lede{margin-top:16px; font-size:16px; color:var(--muted); line-height:1.6}
+
+.stats{display:flex; flex-wrap:wrap; gap:10px 36px; margin-top:34px; padding-top:26px; border-top:2px solid var(--accent-line)}
+.stat dt{font-size:12.5px; color:var(--muted); letter-spacing:.03em}
+.stat dd{margin:2px 0 0; font-family:var(--display); font-weight:600; font-size:23px; color:var(--ink); font-variant-numeric:tabular-nums}
+.stat dd small{font-family:var(--sans); font-weight:400; font-size:13px; color:var(--muted)}
+
+/* ---- sections ---- */
+section{padding-block:52px; border-bottom:1px solid var(--line)}
+.sec-head{margin-bottom:28px}
+.sec-head h2{font-size:25px; font-weight:600; letter-spacing:-.015em}
+.sec-head p{margin:9px 0 0; max-width:var(--measure); color:var(--muted); font-size:15.5px}
+
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(258px,1fr)); gap:14px}
+.card{
+  display:flex; flex-direction:column; gap:7px;
+  padding:18px; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); box-shadow:var(--shadow); text-decoration:none;
+}
+a.card:hover{border-color:var(--accent-line); background:var(--sunken)}
+a.card:hover .card-name{color:var(--accent)}
+.card-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
+.card-name{font-family:var(--display); font-weight:600; font-size:17px; color:var(--ink)}
+.card-host{font-family:var(--mono); font-size:12px; color:var(--faint); word-break:break-all}
+.card p{margin:0; font-size:14.5px; line-height:1.55}
+.pill{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase;
+  padding:2px 8px; border-radius:99px; white-space:nowrap;
+  border:1px solid var(--line); color:var(--faint); background:var(--ground);
+}
+.pill.is-core{background:var(--accent-soft); color:var(--accent); border-color:var(--accent-bd)}
+.pill.is-archived{background:var(--warn-bg); color:var(--warn-fg); border-color:transparent}
+
+/* ---- install chain ---- */
+.chain{display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:26px; padding-top:22px; border-top:1px solid var(--line)}
+.node{
+  font-family:var(--mono); font-size:12.5px; padding:6px 11px;
+  border:1px solid var(--line); border-radius:8px;
+  background:var(--surface); color:var(--body); white-space:nowrap;
+}
+.node.is-yours{border-color:var(--accent-bd); background:var(--accent-soft); color:var(--accent); font-weight:500}
+.arrow{color:var(--faint); font-size:13px; user-select:none}
+.chain-note{margin:12px 0 0; font-size:13.5px; color:var(--muted); max-width:var(--measure)}
+
+/* ---- library list ---- */
+.libs{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--surface)}
+.lib{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 18px; align-items:baseline; padding:15px 18px; border-bottom:1px solid var(--line-soft); text-decoration:none}
+.lib:last-child{border-bottom:0}
+.lib:hover{background:var(--sunken)}
+.lib-name{font-family:var(--mono); font-size:14.5px; font-weight:500; color:var(--ink); word-break:break-word}
+.lib:hover .lib-name{color:var(--accent)}
+.lib-stars{font-family:var(--mono); font-size:12.5px; color:var(--faint); font-variant-numeric:tabular-nums; white-space:nowrap}
+.lib-desc{grid-column:1/-1; font-size:14.5px; color:var(--body)}
+
+.sub{margin-top:34px}
+.sub h3{font-size:17px; font-weight:600; margin-bottom:6px}
+.sub p{margin:0 0 16px; font-size:15px; color:var(--muted); max-width:var(--measure)}
+
+/* ---- footer ---- */
+footer{padding-block:40px 56px}
+.foot{display:flex; flex-wrap:wrap; gap:26px; justify-content:space-between; align-items:flex-start}
+.foot-links{display:flex; flex-wrap:wrap; gap:22px; font-size:15px}
+.foot-links a{display:inline-flex; align-items:center}
+.foot p{margin:0; font-size:13.5px; color:var(--muted); max-width:46ch}
+
+@media (max-width:560px){
+  .hero{padding-block:40px 34px}
+  section{padding-block:40px}
+  .stats{gap:16px 26px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---- icons, taken from the app's own assets ---- */
+.logo{width:26px; height:24px; flex:none; display:block}
+.eyebrow-row{display:flex; align-items:center; gap:10px; margin:0 0 18px}
+.eyebrow-row .eyebrow{margin:0}
+.game-icon{width:26px; height:26px; border-radius:5px; flex:none; object-fit:contain}
+.brand-icon{width:16px; height:16px; flex:none; object-fit:contain; align-self:center}
+.brand-icons{display:flex; align-items:center; gap:6px; flex:none; align-self:center}
+.brand-glyph{width:16px; height:16px; flex:none; display:inline-block; background:currentColor; color:var(--muted); align-self:center}
+.i-shields{-webkit-mask:url(assets/shields.svg) center/contain no-repeat; mask:url(assets/shields.svg) center/contain no-repeat}
+.i{
+  width:15px; height:15px; display:inline-block; vertical-align:-2px; margin-right:6px;
+  background:currentColor; flex:none;
+}
+.i-discord{-webkit-mask:url(assets/discord.svg) center/contain no-repeat; mask:url(assets/discord.svg) center/contain no-repeat}
+.i-github{-webkit-mask:url(assets/github.svg) center/contain no-repeat; mask:url(assets/github.svg) center/contain no-repeat}
+/* Layout and hierarchy */
+html{scroll-behavior:smooth; scroll-padding-top:24px}
+.wrap{max-width:1200px; padding-inline:36px}
+.skip-link{position:absolute; top:-80px; left:24px; z-index:10; padding:10px 16px; background:var(--surface); color:var(--ink)}
+.skip-link:focus{top:12px}
+.masthead .wrap{min-height:82px; padding-block:18px}
+.wordmark{gap:12px}
+.wordmark .logo{width:36px; height:34px}
+.wordmark span{border-left:1px solid var(--side-divider); padding-left:14px; color:var(--side-tx)}
+.masthead nav{gap:26px; font-size:13px; font-weight:500}
+.masthead nav a:last-child{border:1px solid #45484e; border-radius:6px; padding:7px 12px}
+.hero{padding-block:68px 0; border-bottom:0}
+.hero-layout{display:grid; grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr); gap:64px; align-items:center}
+.hero h1{font-size:clamp(38px,4.5vw,58px); font-weight:600; letter-spacing:-.045em; line-height:1.08; margin-bottom:24px}
+.hero h1 span{color:var(--accent)}
+.hero .lede{font-size:17px; line-height:1.7; color:var(--body); max-width:58ch}
+.hero .lede + .lede{font-size:13px; margin-top:18px}
+.hero-actions{display:flex; flex-wrap:wrap; gap:12px; margin-top:28px}
+.button{display:inline-flex; align-items:center; justify-content:center; gap:22px; min-height:46px; padding:10px 18px; border:1px solid var(--line); border-radius:6px; color:var(--ink); font-size:14px; font-weight:500; text-decoration:none; background:var(--surface)}
+.button-primary{background:var(--accent); border-color:var(--accent); color:var(--ground)}
+.button-primary:hover{background:var(--accent-hover); color:var(--ground)}
+.quick-links{border:1px solid var(--line); border-radius:10px; background:var(--surface); overflow:hidden}
+.quick-heading{margin:0; padding:18px 22px; background:var(--sunken); border-bottom:1px solid var(--line); color:var(--muted); font:11px var(--mono); text-transform:uppercase; letter-spacing:.1em}
+.quick-link{display:grid; grid-template-columns:32px 1fr 14px; align-items:center; gap:12px; padding:21px 22px; border-bottom:1px solid var(--line-soft); text-decoration:none; color:var(--ink)}
+.quick-link:last-child{border:0}
+.quick-link:hover{background:var(--sunken)}
+.quick-number{font:12px var(--mono); color:var(--accent)}
+.quick-link strong{display:block; font-size:15px; font-weight:500}
+.quick-link small{display:block; margin-top:3px; font-size:12px; color:var(--muted)}
+.quick-arrow{color:var(--accent)}
+.stats{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0; margin:48px 0 0; padding:24px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line)}
+.stat{padding:0 28px; border-left:1px solid var(--line)}
+.stat:first-child{padding-left:0; border:0}
+.stat dt{font-size:12px}
+.stat dd{font-size:25px; letter-spacing:-.025em}
+section{padding-block:58px}
+.sec-head{display:grid; grid-template-columns:240px 1fr; gap:28px; align-items:start; margin-bottom:26px}
+.sec-head h2{font-size:27px; letter-spacing:-.035em}
+.sec-head p{margin:0; font-size:14px; max-width:65ch}
+.section-number{display:block; margin-bottom:9px; font:11px var(--mono); letter-spacing:.08em; color:var(--accent)}
+.grid{grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px}
+.card{position:relative; padding:23px; gap:12px; box-shadow:none; border-radius:8px; color:var(--body); transition:border-color .16s,background .16s,transform .16s}
+a.card:hover{transform:translateY(-2px); color:var(--body)}
+.card-name{font-size:17px; letter-spacing:-.015em}
+.card p{font-size:14px; line-height:1.65; color:var(--body)}
+.card-top{align-items:start}
+.card-host{font-size:11px}
+#start > .grid{grid-template-columns:repeat(6,minmax(0,1fr)); counter-reset:install}
+#start > .grid > .card{grid-column:span 2; counter-increment:install}
+#start > .grid > .card::before{content:"0" counter(install); color:var(--accent); font:12px var(--mono); margin-bottom:8px}
+#start > .grid > .card:first-child{grid-column:span 4; border-color:var(--accent-bd); background:var(--accent-soft)}
+#start > .grid > .card:first-child .card-name{font-size:23px}
+#start > .grid > .card:first-child p{max-width:62ch}
+.chain{margin-top:22px; padding:20px; border:1px solid var(--line); background:var(--sunken); border-radius:8px; gap:10px}
+.chain-label{font:10px var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-right:10px}
+.node{font-size:11px; border-radius:4px}
+.chain-note{max-width:100%; font-size:12px}
+#mods > .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+#mods > .grid .card-top{flex-wrap:wrap}
+.sub{margin-top:32px}
+.sub h3{font-size:16px}
+.sub > p{font-size:13px}
+.sub .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.sub .publish-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.sub .card{padding:18px; background:transparent}
+.sub .card-name{font-size:15px}
+.sub .card p{font-size:13px}
+.libs{box-shadow:none; border-radius:8px}
+.lib{padding:20px 24px; gap:6px 24px}
+.lib-stars{color:var(--accent)}
+.lib-desc{font-size:14px}
+footer{padding-block:34px 44px}
+.foot-links{gap:24px; font-size:13px}
+.foot p{font-size:12px}
+.footer-brand{display:block; color:var(--ink); font-size:17px; letter-spacing:.06em; margin-bottom:12px}
+@media (max-width:960px){
+  .hero-layout{gap:28px; grid-template-columns:minmax(0,1.4fr) minmax(240px,1fr)}
+  .wordmark span{display:none}
+  .masthead nav{gap:18px}
+  .hero h1{font-size:44px}
+  .sec-head{grid-template-columns:190px 1fr}
+  #mods > .grid,.sub .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat{padding-inline:18px}
+}
+@media (max-width:700px){
+  .wrap{padding-inline:22px}
+  .masthead .wrap{gap:14px}
+  .masthead nav{width:100%; gap:12px 20px; font-size:12px}
+  .masthead nav a:last-child{padding:0; border:0}
+  .hero{padding-top:40px}
+  .hero-layout{grid-template-columns:1fr; gap:30px}
+  .hero h1{font-size:clamp(35px,7vw,46px)}
+  .hero .lede{font-size:16px}
+  .quick-link{padding-block:16px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 0; margin-top:32px}
+  .stat:nth-child(3){padding-left:0; border:0}
+  .stat dd{font-size:23px}
+  section{padding-block:38px}
+  .sec-head{grid-template-columns:1fr; gap:12px}
+  .section-number{display:inline; margin-right:10px}
+  .sec-head h2{font-size:25px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #start > .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #start > .grid > .card{grid-column:span 1}
+  #start > .grid > .card:first-child{grid-column:1/-1}
+  .card{padding:19px}
+  .chain-label{width:100%}
+}
+@media (max-width:440px){
+  .grid,#mods > .grid,.sub .grid,.sub .publish-grid,#start > .grid{grid-template-columns:minmax(0,1fr)}
+  .hero-actions .button{flex:1; gap:10px}
+  .eyebrow{font-size:10px}
+  .stat dd small{display:block}
+  .lib{padding:18px 16px; gap:6px 10px}
+  .lib-name{font-size:13px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Game version support */
+.version-support{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:28px;border:1px solid var(--accent-bd);border-radius:10px;background:var(--accent-soft)}
+.version-support h3{font-size:19px;margin-bottom:12px}
+.version-support p{font-size:14px;margin:0 0 16px}
+.release-versions{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:0 0 16px}
+.release-versions > div{padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:6px;min-width:0}
+.release-versions dt{font-size:12px;color:var(--muted);margin-bottom:6px}
+.release-versions dd{margin:0;font-family:var(--mono);font-size:18px;color:var(--ink);overflow-wrap:anywhere}
+.version-support .version-checked{font-size:12px;color:var(--muted);margin-bottom:0}
+.reference-links{display:flex;flex-wrap:wrap;gap:12px 22px;font-size:14px}
+@media(max-width:700px){.version-support{grid-template-columns:1fr;padding:20px}.release-versions{gap:10px}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to Content</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <a class="wordmark" href="/">
+      <img class="logo" src="assets/butr-logo.svg" alt="BUTR" width="26" height="24">
+      <span>Bannerlord Modding</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#start">Start Here</a>
+      <a href="#mods">Mods</a>
+      <a href="#services">Services</a>
+      <a href="#make">Make a Mod</a>
+      <a href="https://github.com/BUTR"><span class="i i-github" aria-hidden="true"></span>GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+
+  <div class="hero">
+    <div class="hero-layout">
+    <div class="hero-copy">
+    <div class="eyebrow-row">
+      <img class="game-icon" src="assets/bannerlord.webp" alt="" width="26" height="26">
+      <p class="eyebrow">Mount &amp; Blade II: Bannerlord</p>
+    </div>
+    <h1>Tools and Libraries for<br><span>Bannerlord Modding.</span></h1>
+    <p class="lede">
+      We build the mod loader, the shared libraries that mods depend on, a handful of mods of our
+      own, and community services for crash reporting, translations
+      and mod lists.
+    </p>
+    <p class="lede">
+      Everything here is open source and free. We are not affiliated with TaleWorlds.
+    </p>
+
+    <div class="hero-actions">
+      <a class="button button-primary" href="#start">Start Modding <span aria-hidden="true">→</span></a>
+      <a class="button" href="#services">Find a Service <span aria-hidden="true">↗</span></a>
+    </div>
+    </div>
+    <aside class="quick-links" aria-label="Find your starting point">
+      <p class="quick-heading">What Brings You Here?</p>
+      <a class="quick-link" href="#start"><span class="quick-number" aria-hidden="true">01</span><span><strong>Set Up Your Game</strong><small>The essentials, in install order.</small></span><span class="quick-arrow" aria-hidden="true">↗</span></a>
+      <a class="quick-link" href="#services"><span class="quick-number" aria-hidden="true">02</span><span><strong>Find Community Tools</strong><small>Crash reports, translations &amp; more.</small></span><span class="quick-arrow" aria-hidden="true">↗</span></a>
+      <a class="quick-link" href="#make"><span class="quick-number" aria-hidden="true">03</span><span><strong>Make a Mod</strong><small>Libraries, templates &amp; documentation.</small></span><span class="quick-arrow" aria-hidden="true">↗</span></a>
+    </aside>
+    </div>
+
+    <dl class="stats">
+      <div class="stat"><dt>Repositories</dt><dd data-stat="repos">61</dd></div>
+      <div class="stat"><dt>Game Versions Supported</dt><dd><a href="#versions">e1.1.0 <small>onward</small></a></dd></div>
+      <div class="stat"><dt>Community Services</dt><dd>8</dd></div>
+      <div class="stat"><dt>License</dt><dd>Open Source</dd></div>
+    </dl>
+  </div>
+
+
+  <section id="versions">
+    <div class="sec-head">
+      <h2>Game Version Support</h2>
+      <p>We track Bannerlord's stable and beta releases and generate reference assemblies for mod authors.</p>
+    </div>
+    <div class="version-support">
+      <div>
+        <h3>Current Game Versions</h3>
+        <dl class="release-versions">
+          <div><dt>Stable</dt><dd data-version="stable">Not Yet Synced</dd></div>
+          <div><dt>Beta</dt><dd data-version="beta">Not Yet Synced</dd></div>
+        </dl>
+        <p class="version-checked">Last Checked: <span data-version="checked">Awaiting First Sync</span></p>
+      </div>
+      <div>
+        <h3>Reference Assemblies</h3>
+        <p>Compile against a specific Bannerlord version without installing that game build. We generate reference assemblies starting from e1.1.0.</p>
+        <p>Check the published packages for available versions.</p>
+        <div class="reference-links">
+          <a href="https://github.com/BUTR/Bannerlord.ReferenceAssemblies">Reference Assemblies <span aria-hidden="true">↗</span></a>
+          <a href="https://bannerlordapi.butr.link">Game API <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="start">
+    <div class="sec-head">
+      <h2><span class="section-number" aria-hidden="true">01 / GET STARTED</span>Start Here</h2>
+      <p>Almost every Bannerlord mod, ours and other people's, expects these to be installed. Install them first, in this order.</p>
+    </div>
+    <div class="grid">
+      <a class="card" href="https://github.com/BUTR/Bannerlord.BLSE">
+        <span class="card-top"><span class="card-name">BLSE</span><span class="pill is-core">Loader</span></span>
+        <p>Bannerlord Software Extender. You launch the game through it. It adds an extended launcher with load-order sorting and compatibility checks, and catches the exceptions that become crash reports.</p>
+      </a>
+      <a class="card" href="https://github.com/BUTR/Bannerlord.Harmony">
+        <span class="card-top"><span class="card-name">Harmony</span><span class="pill is-core">Patching</span></span>
+        <p>The patching library nearly every mod uses to change how the game behaves. Installing it once keeps mods from shipping their own clashing copies.</p>
+      </a>
+      <a class="card" href="https://github.com/BUTR/Bannerlord.ButterLib">
+        <span class="card-top"><span class="card-name">ButterLib</span><span class="pill is-core">API</span></span>
+        <p>Common functions and an API other mods build on, plus the component that generates a crash report when something goes wrong.</p>
+      </a>
+      <a class="card" href="https://github.com/BUTR/Bannerlord.UIExtenderEx">
+        <span class="card-top"><span class="card-name">UIExtenderEx</span><span class="pill is-core">UI</span></span>
+        <p>Lets several mods change the same game screen without fighting each other over it.</p>
+      </a>
+      <a class="card" href="https://github.com/Aragas/Bannerlord.MBOptionScreen">
+        <span class="card-top"><span class="card-name">MCM</span><span class="pill is-core">Settings</span></span>
+        <p>Mod Configuration Menu. If a mod has an in-game settings screen, it almost certainly uses MCM to draw it. Needs the three above.</p>
+      </a>
+    </div>
+
+    <div class="chain" role="img" aria-label="Load order: BLSE, then Harmony, then ButterLib, UIExtenderEx and MCM, then your mods">
+      <span class="chain-label" aria-hidden="true">Load Order</span>
+      <span class="node">BLSE</span>
+      <span class="arrow" aria-hidden="true">→</span>
+      <span class="node">Harmony</span>
+      <span class="arrow" aria-hidden="true">→</span>
+      <span class="node">ButterLib</span>
+      <span class="arrow" aria-hidden="true">→</span>
+      <span class="node">UIExtenderEx</span>
+      <span class="arrow" aria-hidden="true">→</span>
+      <span class="node">MCM</span>
+      <span class="arrow" aria-hidden="true">→</span>
+      <span class="node is-yours">Your Mods</span>
+    </div>
+    <p class="chain-note">
+      BLSE extends <span class="mono">SubModule.xml</span> with
+      <span class="mono">DependedModuleMetadatas</span>: load before or after, version ranges,
+      optional, incompatible. The launcher sorts your load order from it.
+    </p>
+  </section>
+
+  <section id="mods">
+    <div class="sec-head">
+      <h2><span class="section-number" aria-hidden="true">02 / PLAY</span>Mods</h2>
+      <p>Our own additions to the game. Releases are on GitHub and Nexus Mods.</p>
+    </div>
+    <div class="grid">
+      <a class="card" href="https://github.com/BUTR/Bannerlord.PlayerSwitcher">
+        <span class="card-top"><span class="card-name">Player Switcher</span></span>
+        <p>Take control of almost any hero from any clan in the world, and keep playing as them.</p>
+      </a>
+      <a class="card" href="https://github.com/BUTR/Bannerlord.YellToInspire">
+        <span class="card-top"><span class="card-name">Yell to Inspire</span></span>
+        <p>Yell on the battlefield to rally the troops around you.</p>
+      </a>
+      <a class="card" href="https://github.com/BUTR/Bannerlord.DiscordRichPresence">
+        <span class="card-top"><span class="card-name">Discord Rich Presence</span></span>
+        <p>Shows what you're doing in Calradia on your Discord profile.</p>
+      </a>
+      <a class="card" href="https://github.com/BUTR/MnB2-Bannerlord-CommunityPatch">
+        <span class="card-top"><span class="card-name">Community Patch</span><span class="pill is-archived">Archived</span></span>
+        <p>Community bug fixes that landed ahead of official patches. Retired once TaleWorlds absorbed the fixes upstream.</p>
+      </a>
+    </div>
+
+    <div class="sub">
+      <h3>Experiments</h3>
+      <p>Projects exploring AI gameplay and mod scripting in other languages.</p>
+      <div class="grid">
+        <a class="card" href="https://github.com/BUTR/Bannerlord.GABS">
+          <span class="card-top"><span class="card-name">GABS</span></span>
+          <p>Lets an AI agent play Bannerlord.</p>
+        </a>
+        <a class="card" href="https://github.com/BUTR/Bannerlord.PHP">
+          <span class="card-top"><span class="card-name">Bannerlord.PHP</span></span>
+          <p>Write Bannerlord mods in PHP.</p>
+        </a>
+        <a class="card" href="https://github.com/BUTR/Bannerlord.Python">
+          <span class="card-top"><span class="card-name">Bannerlord.Python</span></span>
+          <p>Write Bannerlord mods in IronPython.</p>
+        </a>
+        <a class="card" href="https://github.com/BUTR/Bannerlord.Lua">
+          <span class="card-top"><span class="card-name">Bannerlord.Lua</span></span>
+          <p>Proof-of-concept Lua scripting support.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="services">
+    <div class="sec-head">
+      <h2><span class="section-number" aria-hidden="true">03 / CONNECT</span>Services</h2>
+      <p>Community infrastructure we run and pay for. Live availability is on the status page.</p>
+    </div>
+    <div class="grid">
+      <a class="card" href="https://crash-report-viewer.butr.link">
+        <span class="card-top"><span class="card-name">Crash Report Viewer</span></span>
+        <span class="card-host">crash-report-viewer.butr.link</span>
+        <p>Visualises a crash report generated by ButterLib, so you can see what failed instead of reading the raw report.</p>
+      </a>
+      <a class="card" href="https://sitenexusmods.butr.link">
+        <span class="card-top"><span class="card-name">Crash Report Dashboard</span><span class="brand-icons"><img class="brand-icon" src="assets/nexusmods.svg" alt="Nexus Mods" width="16" height="16"><img class="brand-icon" src="assets/steam.svg" alt="Steam" width="16" height="16"></span></span>
+        <span class="card-host">sitenexusmods.butr.link</span>
+        <p>Link your mods, see every crash report that involves them, and triage them. Sign in with Nexus Mods or Steam.</p>
+      </a>
+      <a class="card" href="https://translate.butr.link">
+        <span class="card-top"><span class="card-name">Translations</span></span>
+        <span class="card-host">translate.butr.link</span>
+        <p>Translate Bannerlord mods into your language in the browser. No files to edit, nothing to install. BUTR mods are already there, and any mod author can add their own.</p>
+      </a>
+      <a class="card" href="https://modlist.butr.link">
+        <span class="card-top"><span class="card-name">Mod List</span><span class="brand-glyph i-discord" role="img" aria-label="Discord"></span></span>
+        <span class="card-host">modlist.butr.link</span>
+        <p>Stores your mod list so it can be pulled back by a link, or by apps like Discord bots.</p>
+      </a>
+      <a class="card" href="https://nmstats.butr.link">
+        <span class="card-top"><span class="card-name">Download Badges</span><span class="brand-icons"><img class="brand-icon" src="assets/nexusmods.svg" alt="Nexus Mods" width="16" height="16"><span class="brand-glyph i-shields" role="img" aria-label="shields.io"></span></span></span>
+        <span class="card-host">nmstats.butr.link</span>
+        <p><strong>shields.io</strong> endpoints for Nexus Mods download and endorsement counts. Drop a live badge straight into your mod's README.</p>
+      </a>
+      <a class="card" href="https://status.butr.link">
+        <span class="card-top"><span class="card-name">Service Status</span><img class="brand-icon" src="assets/butr-logo.svg" alt="BUTR" width="16" height="16"></span>
+        <span class="card-host">status.butr.link</span>
+        <p>Live uptime for everything above. Check here first if something looks broken.</p>
+      </a>
+    </div>
+  </section>
+
+  <section id="make">
+    <div class="sec-head">
+      <h2><span class="section-number" aria-hidden="true">04 / CREATE</span>Make a Mod</h2>
+      <p>Start from the template: it produces a mod that builds and loads in one command. Use the libraries below as your mod needs them.</p>
+    </div>
+    <div class="libs">
+      <a class="lib" href="https://github.com/BUTR/Bannerlord.Module.Template">
+        <span class="lib-name">Bannerlord.Module.Template</span><span class="lib-stars" data-repo="BUTR/Bannerlord.Module.Template">★ 82</span>
+        <span class="lib-desc">A <span class="mono">dotnet new</span> template that produces a module that builds and loads in one command.</span>
+      </a>
+      <a class="lib" href="https://github.com/BUTR/Bannerlord.ReferenceAssemblies">
+        <span class="lib-name">Bannerlord.ReferenceAssemblies</span><span class="lib-stars" data-repo="BUTR/Bannerlord.ReferenceAssemblies">★ 10</span>
+        <span class="lib-desc">Compile against any game version from e1.1.0 without owning that build.</span>
+      </a>
+      <a class="lib" href="https://github.com/BUTR/BUTR.Harmony.Analyzer">
+        <span class="lib-name">BUTR.Harmony.Analyzer</span><span class="lib-stars" data-repo="BUTR/BUTR.Harmony.Analyzer">★ 9</span>
+        <span class="lib-desc">Catches a broken Harmony patch target at compile time instead of at runtime.</span>
+      </a>
+      <a class="lib" href="https://github.com/BUTR/Bannerlord.ModuleManager">
+        <span class="lib-name">Bannerlord.ModuleManager</span><span class="lib-stars" data-repo="BUTR/Bannerlord.ModuleManager">★ 9</span>
+        <span class="lib-desc">The dependency and load-order resolver, as both C# and JS/TS libraries.</span>
+      </a>
+      <a class="lib" href="https://github.com/BUTR/Bannerlord.XmlSchemas">
+        <span class="lib-name">Bannerlord.XmlSchemas</span><span class="lib-stars" data-repo="BUTR/Bannerlord.XmlSchemas">★ 4</span>
+        <span class="lib-desc">XSD schemas for the game's XML, so your editor autocompletes and validates it.</span>
+      </a>
+      <a class="lib" href="https://github.com/BUTR/Bannerlord.BuildResources">
+        <span class="lib-name">Bannerlord.BuildResources</span><span class="lib-stars" data-repo="BUTR/Bannerlord.BuildResources">★ 7</span>
+        <span class="lib-desc">BUTR MSBuild tooling that fills in SubModule.xml and assembles the module folder. Requires BUTR build properties such as ModuleName, GameVersion and GameFolder.</span>
+      </a>
+      <a class="lib" href="https://github.com/BUTR/Bannerlord.ModuleLoader">
+        <span class="lib-name">Bannerlord.ModuleLoader</span><span class="lib-stars" data-repo="BUTR/Bannerlord.ModuleLoader">★ 3</span>
+        <span class="lib-desc">Package implementations for different game versions inside one module. Generates a loader that selects the implementation to load.</span>
+      </a>
+      <a class="lib" href="https://github.com/BUTR/Harmony.Extensions">
+        <span class="lib-name">Harmony.Extensions</span><span class="lib-stars" data-repo="BUTR/Harmony.Extensions">★ 6</span>
+        <span class="lib-desc">Additional Harmony helpers, including AccessTools2, SymbolExtensions2 and Traverse2.</span>
+      </a>
+    </div>
+
+    <div class="sub">
+      <h3>Documentation</h3>
+      <p>Generated from source on every release.</p>
+      <div class="grid">
+        <a class="card" href="https://bannerlordapi.butr.link">
+          <span class="card-top"><span class="card-name">Game API</span></span>
+          <span class="card-host">bannerlordapi.butr.link</span>
+          <p>Browsable API surface of the game itself, generated from the reference assemblies.</p>
+        </a>
+        <a class="card" href="https://butterlib.butr.link">
+          <span class="card-top"><span class="card-name">ButterLib</span></span>
+          <span class="card-host">butterlib.butr.link</span>
+          <p>API reference and usage guides for the shared library.</p>
+        </a>
+        <a class="card" href="https://uiextenderex.butr.link">
+          <span class="card-top"><span class="card-name">UIExtenderEx</span></span>
+          <span class="card-host">uiextenderex.butr.link</span>
+          <p>Prefab and ViewModel extension patterns, with worked examples.</p>
+        </a>
+        <a class="card" href="https://mcm.bannerlord.aragas.org">
+          <span class="card-top"><span class="card-name">MCM</span></span>
+          <span class="card-host">mcm.bannerlord.aragas.org</span>
+          <p>Defining settings for your mod: global, per-campaign or per-save, across five control types.</p>
+        </a>
+      </div>
+    </div>
+    <div class="sub">
+      <h3>Publish Your Mod</h3>
+      <p>Tools for uploading releases and preparing your mod descriptions.</p>
+      <div class="grid publish-grid">
+        <a class="card" href="https://github.com/BUTR/Bannerlord.SteamWorkshop">
+          <span class="card-top"><span class="card-name">Steam Workshop Uploader</span></span>
+          <p>Upload Bannerlord mods to Steam Workshop from the command line. Installation requires access to BUTR's GitHub package registry.</p>
+        </a>
+        <a class="card" href="https://github.com/BUTR/Converter.MarkdownToBBCode">
+          <span class="card-top"><span class="card-name">Markdown to BBCode</span></span>
+          <p>Convert Markdown or HTML mod descriptions into the BBCode formats used by Nexus Mods and Steam.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="foot">
+      <div>
+        <b class="footer-brand">BUTR</b>
+        <div class="foot-links">
+          <a href="https://github.com/BUTR"><span class="i i-github" aria-hidden="true"></span>GitHub</a>
+          <a href="https://discord.gg/unBY2twS3V"><span class="i i-discord" aria-hidden="true"></span>Discord</a>
+          <a href="https://status.butr.link">Status</a>
+          <a href="https://github.com/BUTR/documentation">Docs</a>
+        </div>
+        <p style="margin-top:14px">
+          BUTR is a community project and is not affiliated with TaleWorlds Entertainment.
+          Mount &amp; Blade II: Bannerlord is their trademark.
+        </p>
+      </div>
+      <p>
+        Bug reports and pull requests are welcome on any repository.
+        Questions are answered fastest on Discord.
+      </p>
+    </div>
+  </footer>
+
+</main>
+</body>
+</html>

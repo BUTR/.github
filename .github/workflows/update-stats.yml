@@ -1,0 +1,46 @@
+name: Update site statistics
+
+# Refreshes the star counts and repository total in index.html from the GitHub
+# API and tracked game versions after reference assembly generation completes.
+# The version check date advances only when both variables are available.
+
+on:
+  repository_dispatch:
+    types: [game_version_update]
+  workflow_dispatch: # so it can be run by hand after editing the page
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-stats
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Refresh Figures and Game Versions
+        env:
+          GAME_VERSION_STABLE: ${{ vars.GAME_VERSION_STABLE }}
+          GAME_VERSION_BETA: ${{ vars.GAME_VERSION_BETA }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 1000 req/hr instead of 60
+        run: python scripts/update-stats.py
+
+      - name: Commit if anything changed
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No change to index.html."
+            exit 0
+          fi
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'chore: refresh site statistics'
+          git push
