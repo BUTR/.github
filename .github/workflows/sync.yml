@@ -1,136 +1,75 @@
 name: Sync
 
+# Receives the game's current stable and beta versions from BUTR/Bannerlord.ReferenceAssemblies, which
+# sends them only once the reference assemblies of both are on NuGet, and turns them into the
+# GAME_VERSION_STABLE and GAME_VERSION_BETA variables the mod repositories build against. When they
+# changed, waits for NuGet to index the packages and tells the repositories.
+#
+# The versions come from that repository's build registry, which polls the Steam branches every three
+# hours, so this workflow no longer logs into Steam or watches the Steam News feed itself.
+
 on:
-  schedule:
-    - cron: "0 */3 * * *"
+  repository_dispatch:
+    types: [game_versions]
   workflow_dispatch:
+    inputs:
+      stable:
+        description: "Stable game version, e.g. v1.4.8"
+        required: true
+      beta:
+        description: "Beta game version; the stable one when Steam has no beta branch"
+        required: true
 
 concurrency:
   group: sync-workflow
   cancel-in-progress: false
 
-env:
-  # Disable the .NET logo in the console output.
-  DOTNET_NOLOGO: true
-  # Disable the .NET first time experience to skip caching NuGet packages and speed up the build.
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  # Disable sending .NET CLI telemetry to Microsoft.
-  DOTNET_CLI_TELEMETRY_OPTOUT: true
-
 jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      STABLE: ${{ github.event.client_payload.stable || github.event.inputs.stable }}
+      BETA: ${{ github.event.client_payload.beta || github.event.inputs.beta }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET 9
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-            9.x.x
-
-      - name: Setup BUTR GPR
-        uses: actions/setup-dotnet@v4
-        with:
-          source-url: https://nuget.pkg.github.com/BUTR/index.json
+      - name: Compare with the current variables
+        id: compare
         env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
-      - name: Build DotNetTools
-        run: dotnet build src/DotNetTools/DotNetTools.csproj
-        shell: pwsh
-
-      - name: Check Steam News for Patch Notes
-        id: date_checker
+          GH_TOKEN: ${{ secrets.GH_TOKEN_EXTENDED }}
         run: |
-          $response = Invoke-RestMethod -Uri "https://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid=261550&count=10&format=json"
-          $tags = @("patchnotes", "mod_reviewed", "mod_require_rereview")
-          $item = $response.appnews.newsitems | Where-Object { $_.tags -and ($_.tags | Where-Object { $_ -in $tags }) } | Select-Object -First 1
+          pattern='^[ev][0-9]+\.[0-9]+\.[0-9]+$'
+          if ! [[ "$STABLE" =~ $pattern && "$BETA" =~ $pattern ]]; then
+            echo "::error::Refusing to set malformed versions: stable='$STABLE' beta='$BETA'"
+            exit 1
+          fi
+          current_stable=$(gh variable get GAME_VERSION_STABLE --org BUTR 2>/dev/null || true)
+          current_beta=$(gh variable get GAME_VERSION_BETA --org BUTR 2>/dev/null || true)
+          echo "Received stable=$STABLE beta=$BETA; variables say stable=$current_stable beta=$current_beta"
+          if [ "$STABLE" = "$current_stable" ] && [ "$BETA" = "$current_beta" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
 
-          $lastPost = gh variable get SC_DATE_OF_LAST_POST --repo BUTR/.github 2>$null
-          if (-not $lastPost) { $lastPost = "0" }
-
-          $date = if ($item -and $item.date -ne [int]$lastPost) { $item.date } else { 0 }
-          echo "date=$date" >> $env:GITHUB_OUTPUT
-
-          if ($date -ne 0) {
-            gh variable set SC_DATE_OF_LAST_POST --repo BUTR/.github --body $item.date
-          }
-        shell: pwsh
+      - name: Update the variables
+        if: steps.compare.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
-        continue-on-error: true
-        
-      - name: Run DotNetTools get-latest-version
-        id: branches
-        run: >-
-          if ('${{ steps.date_checker.outputs.date }}' -ne '0') {
-            $output_v = dotnet run --project src/DotNetTools/DotNetTools.csproj --no-build --no-launch-profile -- get-latest-version --steamLogin ${{secrets.STEAM_LOGIN}} --steamPassword ${{secrets.STEAM_PASSWORD}} --steamAppId 261550 --steamDepotId 261551 --steamDepotId 261552 --steamOS windows --steamOSArch 64;
-            echo "json=$output_v" >> $env:GITHUB_OUTPUT
-          } else {
-            echo "json={}" >> $env:GITHUB_OUTPUT
-          }
-        env:
-          GITHUB_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
-        shell: pwsh
-
-      - name: Set should_sync flag
-        id: check
+          GH_TOKEN: ${{ secrets.GH_TOKEN_EXTENDED }}
         run: |
-          if ('${{ steps.date_checker.outputs.date }}' -ne '0' -and '${{ steps.branches.outputs.json }}' -ne '{}') {
-            echo "should_sync=true" >> $env:GITHUB_OUTPUT
-          }
-        shell: pwsh
+          gh variable set GAME_VERSION_STABLE --org BUTR --body "$STABLE" --visibility all
+          gh variable set GAME_VERSION_BETA --org BUTR --body "$BETA" --visibility all
+          # Outside the org, so the org variables do not reach it.
+          gh variable set GAME_VERSION_STABLE --repo Aragas/Bannerlord.MBOptionScreen --body "$STABLE"
+          gh variable set GAME_VERSION_BETA --repo Aragas/Bannerlord.MBOptionScreen --body "$BETA"
 
-      - name: Parse versions
-        if: steps.check.outputs.should_sync == 'true'
-        id: versions
-        run: |
-          $json = '${{ steps.branches.outputs.json }}' | ConvertFrom-Json
-          echo "stable=$($json.stable)" >> $env:GITHUB_OUTPUT
-          echo "beta=$($json.beta)" >> $env:GITHUB_OUTPUT
-        shell: pwsh
+      - name: Wait for NuGet to index the packages
+        if: steps.compare.outputs.changed == 'true'
+        run: sleep 600
 
-      - name: Update GitHub Variables
-        if: steps.check.outputs.should_sync == 'true'
-        run: |
-          $stable = '${{ steps.versions.outputs.stable }}'
-          $beta = '${{ steps.versions.outputs.beta }}'
-
-          # Update BUTR org variables
-          gh variable set GAME_VERSION_STABLE --org BUTR --body $stable --visibility all
-          gh variable set GAME_VERSION_BETA --org BUTR --body $beta --visibility all
-
-          # Update Aragas/Bannerlord.MBOptionScreen repo variables
-          gh variable set GAME_VERSION_STABLE --repo Aragas/Bannerlord.MBOptionScreen --body $stable
-          gh variable set GAME_VERSION_BETA --repo Aragas/Bannerlord.MBOptionScreen --body $beta
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{secrets.GH_TOKEN_EXTENDED}}
-
-      - name: Sync STABLE/BETA
-        if: steps.check.outputs.should_sync == 'true'
-        uses: BUTR/secrets-sync-action@v1.7.1
+      - name: Dispatch Game Update
+        if: steps.compare.outputs.changed == 'true'
+        uses: ./.github/actions/dispatch-game-update
         with:
-          secrets: |
-            ^SYNCED_
-          repositories: |
-            ^BUTR
-          github_token: ${{secrets.REPO_ACCESS_TOKEN}}
-        env:
-          SYNCED_GAME_STABLE_VERSION: ${{ steps.versions.outputs.stable }}
-          SYNCED_GAME_BETA_VERSION: ${{ steps.versions.outputs.beta }}
-
-      - name: Dispatch Bannerlord.ReferenceAssemblies
-        if: steps.check.outputs.should_sync == 'true'
-        uses: guilouro/multiple-repositories-dispatch@v1.0.2
-        with:
-          repo_token: ${{secrets.REPO_ACCESS_TOKEN}}
-          repositories: |
-            BUTR/Bannerlord.ReferenceAssemblies
-          event_type: game_version_update
-          client_payload: '{"github": ${{ toJson(github) }}}'
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}

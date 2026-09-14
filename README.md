@@ -1,4 +1,4 @@
 # .github
-Checks the current Stable/Beta game versions and sets the version secrets for the organisation's repositories, dispatches the version update events for them.
+Receives the current Stable/Beta game versions from Bannerlord.ReferenceAssemblies, sets the GAME_VERSION_STABLE and GAME_VERSION_BETA variables for the organisation's repositories, and dispatches the version update events to them.
 # profile
 Contains organisation's profile readme and all the associated resources.
